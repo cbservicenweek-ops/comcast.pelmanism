@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comcast Enterprise Process Framework Game</title>
-    <!-- Tailwind CSS Engine -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         /* 3D Card Flip Animations */
@@ -14,15 +13,15 @@
         .rotate-y-180 { transform: rotateY(180deg); }
         
         /* Custom scrollbar for text-heavy cards to maintain clean aesthetic */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 2px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 3px; }
 
         /* Incorrect Match Shake Animation */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-6px); }
-            40%, 80% { transform: translateX(6px); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
         }
         .animate-shake { animation: shake 0.4s ease-in-out; }
 
@@ -33,8 +32,8 @@
         }
         .confetti {
             position: absolute;
-            width: 10px;
-            height: 24px;
+            width: 11px;
+            height: 25px;
             animation: confettiFall 4s linear infinite;
             z-index: 60;
         }
@@ -42,11 +41,10 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden">
 
-    <!-- Celebration Screen Modal Overlay -->
     <div id="celebrationModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4 overflow-hidden">
         <div id="confettiContainer" class="absolute inset-0 pointer-events-none"></div>
         
-        <div class="bg-[#111827] border-2 border-red-500/30 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center relative z-10 transform scale-95 transition-transform duration-500" id="celebrationCard">
+        <div class="bg-[#111827] border-2 border-red-500/30 p-8 rounded-2xl shadow-2xl max-w-lg w-full text-center relative z-10 transform scale-95 transition-transform duration-500" id="celebrationCard">
             <div id="victoryIcon" class="w-20 h-20 bg-gradient-to-tr from-red-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20">
                 <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
@@ -74,7 +72,6 @@
         </div>
     </div>
 
-    <!-- Personal Record Challenge Warning Modal Overlay -->
     <div id="challengeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#111827] border border-amber-500/30 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
             <div class="w-14 h-14 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -102,38 +99,59 @@
         </div>
     </div>
 
-    <!-- Welcome Modal Overlay (Required to start) -->
-    <div id="welcomeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-[#111827] border border-slate-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
-            <div class="flex justify-center items-center gap-1.5 mb-4 text-white font-black tracking-tighter text-2xl font-mono">
-                <span class="text-red-500 text-3xl font-sans font-normal leading-none -mt-1">c</span>omcast
-            </div>
-            <h1 class="text-xl font-bold text-slate-100 mb-1 tracking-tight">Operational Process Diagnostics</h1>
-            <p class="text-slate-400 mb-6 text-xs">Calibrate target system architectures by linking respective structural lifecycle benchmarks.</p>
-            <form id="startForm" onsubmit="verifyIdentityProfile(event)" class="space-y-4">
-                <div class="text-left">
-                    <label for="playerName" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Operator Full Name</label>
-                    <input type="text" id="playerName" required autocomplete="name" placeholder="e.g. John Doe" 
-                           class="w-full bg-[#172033] border border-slate-700 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-sm">
+    <div id="welcomeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-[#111827] border border-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start my-auto">
+            
+            <div class="space-y-5">
+                <div class="flex items-center gap-1.5 text-white font-black tracking-tighter text-3xl font-mono">
+                    <span class="text-red-500 text-4xl font-sans font-normal leading-none -mt-1">c</span>omcast
                 </div>
-                <button type="submit" id="submitBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-200 cursor-pointer disabled:opacity-50">
-                    Initialize Diagnostic Deck
-                </button>
-            </form>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-100 tracking-tight">Operational Process Diagnostics</h1>
+                    <p class="text-slate-400 mt-1 text-xs leading-relaxed">Calibrate target system architectures by linking respective structural lifecycle benchmarks.</p>
+                </div>
+                
+                <form id="startForm" onsubmit="verifyIdentityProfile(event)" class="space-y-4 pt-2">
+                    <div class="text-left">
+                        <label for="playerName" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Operator Full Name</label>
+                        <input type="text" id="playerName" required autocomplete="name" placeholder="e.g. John Doe" 
+                               class="w-full bg-[#172033] border border-slate-700 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-sm">
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md shadow-red-500/10 transition-all duration-200 cursor-pointer">
+                        Initialize Diagnostic Deck
+                    </button>
+                </form>
+                
+                <div class="bg-[#172033]/40 border border-slate-800/80 rounded-xl p-3.5 text-[11px] text-slate-400 leading-normal">
+                    <span class="font-bold text-slate-200 block mb-1">📋 Diagnostic Rules:</span>
+                    Six business processes will be drawn at random from the configuration library. Link all matched nodes efficiently to submit your performance run.
+                </div>
+            </div>
+
+            <div class="bg-[#0b0f19]/60 border border-slate-800 rounded-xl p-4 w-full h-full min-h-[340px] flex flex-col">
+                <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-800">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                        <span class="inline-block h-2 w-2 rounded-full bg-red-500"></span>
+                        Top Performing Operators
+                    </h3>
+                    <span class="text-[10px] font-mono text-slate-500">Global Index</span>
+                </div>
+                <ol id="modalLeaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[340px] pr-1 custom-scrollbar text-sm">
+                    <li class="text-slate-500 italic text-center py-12 text-xs">Pinging cloud data systems...</li>
+                </ol>
+            </div>
+
         </div>
     </div>
 
-    <!-- Main Game View Dashboard -->
-    <div class="max-w-[1600px] mx-auto p-4 lg:p-6 min-h-screen flex flex-col">
+    <div class="max-w-[1700px] mx-auto p-4 lg:p-6 min-h-screen flex flex-col">
         
-        <!-- Header Panel -->
         <header class="bg-[#111827]/80 border border-slate-800 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 backdrop-blur-sm">
             <div class="flex items-center gap-3">
                 <div class="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse"></div>
                 <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">SYSTEM AGENT: <span id="displayPlayerName" class="text-white font-mono normal-case tracking-normal pl-1">---</span></h2>
             </div>
             
-            <!-- Dynamic KPI Trackers -->
             <div class="flex items-center gap-8">
                 <div class="text-center">
                     <p class="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">ELAPSED TIME</p>
@@ -146,69 +164,92 @@
             </div>
         </header>
 
-        <!-- 3-Column Workspace Layout -->
-        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6 flex-1">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 flex-1">
             
-            <!-- Left Column: Business Processes Reference -->
-            <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-5 flex flex-col">
+            <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col">
                 <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Target Processes</h3>
-                <div id="processList" class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1 custom-scrollbar">
-                    <!-- Dynamic process lists go here -->
+                <div id="processList" class="space-y-2.5 flex-1 overflow-y-auto max-h-[74vh] pr-1 custom-scrollbar">
+                    <div class="text-slate-600 text-xs italic p-2">Awaiting workspace activation...</div>
                 </div>
             </aside>
 
-            <!-- Middle Column: Main Interactive Card Grid -->
-            <main class="md:col-span-2 lg:col-span-3 flex flex-col justify-center">
-                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-2">
-                    <!-- Card items dynamically generated here -->
-                </div>
+            <main class="md:col-span-3 flex flex-col justify-start">
+                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-1">
+                    </div>
             </main>
 
-            <!-- Right Column: Top 10 Leaderboard -->
-            <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-5 flex flex-col">
+            <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col">
                 <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Performance Index</h3>
-                <ol id="leaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[70vh] pr-1 custom-scrollbar text-sm">
-                    <!-- Leaderboard entries go here -->
-                </ol>
+                <ol id="leaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[74vh] pr-1 custom-scrollbar text-sm">
+                    </ol>
             </aside>
 
         </div>
     </div>
 
-    <!-- Core Application Logic Script -->
     <script>
-        // --- ADMIN CONFIGURATION OBJECT ---
+        // --- ADMIN CONFIGURATION OBJECT (9 Total Business Processes) ---
         const processesConfig = [
             {
                 id: 1,
-                name: "How to Park",
-                before: "The driver approaches an empty space, signals intent early to warn trailing traffic, checks mirrors for cyclists, and aligns the vehicle parallel to the curb before beginning back-in maneuvers.",
-                after: "The vehicle settles squarely inside boundaries, the electronic parking brake engages firmly, the transmission locks into Park, and engine systems shut down safely to prevent unintended rollaways."
+                name: "Park a ticket",
+                before: "Change Incident State to Awaiting Response/Action – Provider or Awaiting Response/Action – Customer",
+                after: "Change Case Status to Awaiting Info"
             },
             {
                 id: 2,
-                name: "Database Backup",
-                before: "System automation initiates a temporary transactional write lock, verifies schema integrity models, creates a distinct structural snapshot point, and isolates incoming active data pipelines.",
-                after: "The snapshot shifts seamlessly to distributed off-site server infrastructure, background processes recalculate checksum configurations, and system locks release to restore full operational capability."
+                name: "Update the Next Action Due time/date",
+                before: "Select the appropriate action from the Next Action drop down menu.  Choose the Next Action Due time and date from the Next Action Due field.  NOTE: Ilex uses Eastern Standard Time to account for the customer’s local time zone when choosing the Next Action Due time",
+                after: "Select the appropriate action from the Next Action Message drop down menu.  Choose the Next Action time and date from the Next Action field.  NOTE: ServiceNow uses your local time zone if you set it up correctly in your profile.  Enter the time in 24 hour format (no AM/PM)"
             },
             {
                 id: 3,
-                name: "Customer Onboarding",
-                before: "The client provides verified structural profile inputs via an encrypted digital submission, triggers baseline system identity checks, and generates unique validation tokens.",
-                after: "Internal databases securely configure new records, access tokens ship automatically to the client's inbox, and dedicated onboarding paths initialize within centralized monitoring suites."
+                name: "Assign/Unassign a ticket",
+                before: "To assign a ticket to yourself, choose your Assignment Group from the Assignment Group drop down menu.  Then select your name in the Assignee field.  To reassign a ticket, choose the appropriate Assignment Group.  If assigning to a specific person choose their name in the Assignee field.  To unassign a ticket from yourself, choose the Unassigned User or Passdown in the Assignee field",
+                after: "To assign a ticket to yourself choose Assign to me from the buttons at the top of the Case form.  To reassign another person, choose their group in the Assignment group drop down menu.  Then choose their name from the Assigned to drop down menu.  To remove yourself from the Case choose Unassign from the buttons at the top of the Case form"
             },
             {
                 id: 4,
-                name: "Code Deployment",
-                before: "Engineering steps push staging branch items into central repositories, triggering automated unit testing architectures, package dependency audits, and container building workflows.",
-                after: "Active clusters execute graceful blue-green routing cutovers, telemetry frameworks monitor regression spikes, and continuous integration engines close structural development tickets."
+                name: "Update ticket work notes",
+                before: "Enter your notes in the Work Note field.  Choose Internal if this should be an internal Work Note.  Choose Client Facing (Corporate) if the customer should see your Work Note.  Use the drop down menu under the Work Note field.  Remember to Save your ticket progress",
+                after: "Choose the Notes tab.  Enter your work notes in the Additional comments (Customer visible) field if the customer should see your notes.  Enter internal notes in the Work notes field.  Click on Post to save your progress"
+            },
+            {
+                id: 5,
+                name: "Search for ticket history/open tickets for a site/client ",
+                before: "Choose the customer in the Customers field under one of the tabs in the NOC Helpdesk screen.  Filter by ticket state using the State column.  For Closed Tickets choose Closed Ticket Search, then choose your Customer from the drop down menu",
+                after: "Choose Cases – All.  Enter your customer in the Site Owner column.  Choose the filter Open Ticket Filter.  For closed tickets you can modify the filter to show only Resolved, Closed, or Cancelled Cases"
+            },
+            {
+                id: 6,
+                name: "Find device up/down status in a Case and compare with MiDEC",
+                before: "Use MIDEC",
+                after: "In the Case check the Monitoring Tab for up/down status of monitored devices.  In MIDEC search for the customer and site number to check monitored devices"
+            },
+            {
+                id: 7,
+                name: "Find ISP details in Pivot for a client site",
+                before: "Open up Pivot and search by customer site code and site number to view the ISP providers of Off-Net locations.  Use Café to search for On-Net locations",
+                after: "In the Case scroll to the bottom of the form and check the ISP Providers tab"
+            },
+            {
+                id: 8,
+                name: "Open/close a ticket",
+                before: "Choose the blue Create Ticket button.  Fill in all fields with a red bar that is required.  Once all fields are filled in the Blue Save button will become active.  To close a ticket, enter and save your Work Note.  Then choose Resolved from the Incident State drop down menu.  Choose the appropriate options in the Point of Failure, Root Cause, and Resolution drop down menus",
+                after: "Choose Cases – Create New from the All or Favorites drop down menus.  Fill in all fields with an asterisk that is required.  Click on Save.  To close a Case, enter your Work notes.  Choose Case Status from the Case Status drop down menu.  Fill in the fields under the Resolution Information tab.  Choose Save"
+            },
+            {
+                id: 9,
+                name: "Set up a Dispatch",
+                before: "In your ticket click on the blue Dispatch Request button.  Fill in all the fields with a red bar.  Choose the Preferred Arrival date and time agreed upon with the customer.  After choosing Submit, check the Work Note field in your Ilex ticket and the Dispatch Ticket# field",
+                after: "In your Case choose the Dispatch Request button at the top of the screen.  Fill in the fields with an asterisk.  Fill in what needs to be done in the Work notes under the Notes tab.  Choose Save.  Check the Work notes under the Notes tab in your Case for the Dispatch ticket number.  You can also check the Tasks tab at the bottom of the Case form"
             }
         ];
 
         // --- GLOBAL APP STATE ---
         let currentPlayerName = "";
-        let globalCachedScores = []; // Holds live parsed data records cleanly
         let personalBestRecord = null;
+        let selectedProcesses = []; 
         let cardsData = [];
         let flippedCards = [];
         let matchedPairsCount = 0;
@@ -221,19 +262,18 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            renderProcessList();
             loadLeaderboard();
         });
 
-        function renderProcessList() {
+        function renderActiveProcessList() {
             const listContainer = document.getElementById('processList');
-            listContainer.innerHTML = processesConfig.map(p => `
+            listContainer.innerHTML = selectedProcesses.map(p => `
                 <div id="process-row-${p.id}" class="bg-[#172033]/40 border border-slate-800 rounded-xl p-3 shadow-sm transition-all duration-300">
                     <div class="text-[10px] font-bold text-slate-400 tracking-wide mb-1 flex items-center justify-between">
                         <span>MODULE 0${p.id}</span>
                         <span class="status-badge text-[9px] font-mono font-normal opacity-0 transition-opacity bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.2 rounded">VERIFIED</span>
                     </div>
-                    <div class="text-sm font-semibold text-slate-200 transition-colors process-title">${p.name}</div>
+                    <div class="text-xs font-semibold text-slate-200 transition-colors process-title">${p.name}</div>
                     <div class="text-[10px] text-slate-500 mt-1.5 flex gap-1.5 items-center">
                         <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">Before</span>
                         <span>➔</span>
@@ -243,24 +283,24 @@
             `).join('');
         }
 
-        // Intercept identity submissions to evaluate historical record entries
+        // --- INSTANT RESPONSE ENGINE (FIXES BLANK SYSTEM FREEZE) ---
         function verifyIdentityProfile(event) {
             event.preventDefault();
             const nameInput = document.getElementById('playerName').value.trim();
             if(!nameInput) return;
 
-            document.getElementById('submitBtn').disabled = true;
             currentPlayerName = nameInput;
+            const normalizedName = currentPlayerName.toLowerCase().replace(/\s+/g, ' ');
+            
+            // Look up the name locally first. This operates instantaneously.
+            const localSavedBest = localStorage.getItem(`best_time_${normalizedName}`);
 
-            // Search history array for matches using lower-case properties
-            const existingRecord = globalCachedScores.find(entry => entry.name.toLowerCase() === currentPlayerName.toLowerCase());
-
-            if (existingRecord) {
-                personalBestRecord = Number(existingRecord.time);
-                document.getElementById('challengePlayerName').textContent = existingRecord.name;
+            if (localSavedBest) {
+                personalBestRecord = Number(localSavedBest);
+                document.getElementById('challengePlayerName').textContent = currentPlayerName;
                 document.getElementById('timeToBeat').textContent = personalBestRecord;
                 
-                // Route user through Challenge Confirmation Prompt
+                // Show challenge notification panel
                 document.getElementById('challengeModal').classList.remove('hidden');
             } else {
                 personalBestRecord = null;
@@ -276,38 +316,39 @@
         function confirmStart() {
             document.getElementById('displayPlayerName').textContent = currentPlayerName;
             document.getElementById('welcomeModal').classList.add('opacity-0', 'pointer-events-none');
+            
+            // Draw 6 random processes from our total pool array
+            const shuffledPool = [...processesConfig].sort(() => 0.5 - Math.random());
+            selectedProcesses = shuffledPool.slice(0, 6);
+            
+            renderActiveProcessList();
             initializeGrid();
         }
 
         function initializeGrid() {
             cardsData = [];
-            processesConfig.forEach(p => {
+            selectedProcesses.forEach(p => {
                 cardsData.push({ id: p.id, type: 'Before', text: p.before });
                 cardsData.push({ id: p.id, type: 'After', text: p.after });
             });
 
+            // Randomize position placement mix
             for (let i = cardsData.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [cardsData[i], cardsData[j]] = [cardsData[j], cardsData[i]];
             }
 
             const gridContainer = document.getElementById('gameGrid');
-            const totalCards = cardsData.length;
             
-            if(totalCards <= 8) {
-                gridContainer.className = "grid gap-4 w-full max-w-4xl mx-auto grid-cols-2 sm:grid-cols-4";
-            } else if (totalCards <= 12) {
-                gridContainer.className = "grid gap-4 w-full max-w-5xl mx-auto grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
-            } else {
-                gridContainer.className = "grid gap-4 w-full max-w-6xl mx-auto grid-cols-2 sm:grid-cols-4 lg:grid-cols-6";
-            }
+            // Generates a responsive grid built for 12 cards (6 pairs)
+            gridContainer.className = "grid gap-4 w-full max-w-5xl mx-auto grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
 
             gridContainer.innerHTML = cardsData.map((card, index) => `
-                <div class="perspective-1000 aspect-[4/5] cursor-pointer" onclick="handleCardFlip(this, ${index})">
+                <div class="perspective-1000 aspect-[5/4.5] cursor-pointer" onclick="handleCardFlip(this, ${index})">
                     <div class="w-full h-full relative transform-style-3d transition-transform duration-500 rounded-xl shadow-lg border border-slate-800">
                         <div class="absolute inset-0 bg-gradient-to-br from-[#111827] to-[#1e293b] rounded-xl backface-hidden flex flex-col items-center justify-center p-4 border border-slate-800 group hover:border-red-500/40 transition-colors">
-                            <div class="h-10 w-10 rounded-full bg-slate-950 flex items-center justify-center border border-slate-800 shadow-inner group-hover:scale-110 group-hover:border-slate-700 transition-all duration-300">
-                                <span class="text-slate-500 font-mono text-xs font-bold transition-colors group-hover:text-red-400">::</span>
+                            <div class="h-12 w-12 rounded-full bg-slate-950 flex items-center justify-center border border-slate-800 shadow-inner group-hover:scale-110 group-hover:border-slate-700 transition-all duration-300">
+                                <span class="text-slate-500 font-mono text-sm font-bold transition-colors group-hover:text-red-400">::</span>
                             </div>
                         </div>
                         <div class="absolute inset-0 bg-[#0f172a] rounded-xl backface-hidden rotate-y-180 flex flex-col p-4 border-2 border-slate-800 overflow-hidden">
@@ -316,7 +357,7 @@
                                     ${card.type}
                                 </span>
                             </div>
-                            <div class="flex-1 overflow-y-auto text-xs text-slate-300 leading-relaxed pr-1 custom-scrollbar select-none">
+                            <div class="flex-1 overflow-y-auto text-sm text-slate-200 leading-relaxed pr-1 custom-scrollbar select-none font-medium">
                                 ${card.text}
                             </div>
                         </div>
@@ -339,7 +380,7 @@
         }
 
         function updateKPIs() {
-            document.getElementById('pairsCount').textContent = `${matchedPairsCount} / ${processesConfig.length}`;
+            document.getElementById('pairsCount').textContent = `${matchedPairsCount} / ${selectedProcesses.length}`;
         }
 
         function handleCardFlip(cardWrapper, dataIndex) {
@@ -394,7 +435,7 @@
                 flippedCards = [];
                 isProcessing = false;
 
-                if (matchedPairsCount === processesConfig.length) {
+                if (matchedPairsCount === selectedProcesses.length) {
                     endGame();
                 }
             } else {
@@ -448,10 +489,8 @@
                 document.getElementById('victoryPlayerName').textContent = currentPlayerName;
                 document.getElementById('victoryTime').textContent = `${timeElapsedSeconds}s`;
 
-                // Determine context-aware text variations based on personal record comparisons
                 if (personalBestRecord !== null) {
                     if (timeElapsedSeconds < personalBestRecord) {
-                        // Success: PR Broken
                         heading.textContent = "Record Shattered!";
                         heading.className = "text-3xl font-extrabold text-amber-400 mb-2 tracking-tight";
                         msg.innerHTML = `Incredible optimization, <span class="text-amber-400 font-bold">${currentPlayerName}</span>! You successfully trimmed your framework diagnostic time down.`;
@@ -461,7 +500,6 @@
                         iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20";
                         runCelebrationFX();
                     } else {
-                        // Failure: PR Unchanged
                         heading.textContent = "Nice Try!";
                         heading.className = "text-3xl font-extrabold text-slate-300 mb-2 tracking-tight";
                         msg.innerHTML = `Systems checked, <span class="text-white font-bold">${currentPlayerName}</span>. You matched all modules, but couldn't quite beat your historical benchmark record.`;
@@ -471,7 +509,6 @@
                         iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-slate-700 to-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600";
                     }
                 } else {
-                    // Standard routing for brand new profiles
                     heading.textContent = "Framework Verified!";
                     heading.className = "text-3xl font-extrabold text-white mb-2 tracking-tight";
                     lbl.textContent = "Accuracy Rank";
@@ -494,7 +531,12 @@
 
         // --- PERSISTENCE & LEADERBOARD SYSTEM ---
         function saveScore(name, time) {
-            localStorage.setItem(`best_time_${name}`, time);
+            const normalizedSaveName = name.trim().toLowerCase().replace(/\s+/g, ' ');
+            const localBest = localStorage.getItem(`best_time_${normalizedSaveName}`);
+            
+            if (!localBest || time < Number(localBest)) {
+                localStorage.setItem(`best_time_${normalizedSaveName}`, time);
+            }
             
             fetch(endpointURL, {
                 method: 'POST',
@@ -509,66 +551,83 @@
             .catch(error => console.error('Global save execution failure:', error));
         }
 
-        function loadLeaderboard() {
-            const leaderboardContainer = document.getElementById('leaderboardList');
+        function renderLeaderboardLists(topTenList) {
+            const gameBoardContainer = document.getElementById('leaderboardList');
+            const landingPageContainer = document.getElementById('modalLeaderboardList');
 
+            if(!Array.isArray(topTenList) || topTenList.length === 0) {
+                const emptyHTML = `<li class="text-slate-500 italic text-center py-4 text-xs">No records tracked.</li>`;
+                gameBoardContainer.innerHTML = emptyHTML;
+                landingPageContainer.innerHTML = emptyHTML;
+                return;
+            }
+
+            const dynamicHTML = topTenList.map((entry, idx) => {
+                let badgeStyle = "text-slate-500";
+                if (idx === 0) badgeStyle = "text-red-500 font-bold";
+                if (idx === 1) badgeStyle = "text-amber-500 font-bold";
+                if (idx === 2) badgeStyle = "text-sky-400 font-bold";
+
+                return `
+                    <li class="flex items-center justify-between bg-[#172033]/40 border border-slate-800/60 rounded-lg p-2.5 hover:bg-[#172033]/80 transition-colors">
+                        <div class="flex items-center gap-2.5 truncate max-w-[75%]">
+                            <span class="w-5 text-center text-xs font-mono ${badgeStyle}">0${idx + 1}</span>
+                            <span class="font-medium text-slate-300 truncate" title="${entry.name}">${entry.name}</span>
+                        </div>
+                        <span class="font-mono text-xs font-bold text-red-400 shrink-0">${entry.time}s</span>
+                    </li>
+                `;
+            }).join('');
+
+            gameBoardContainer.innerHTML = dynamicHTML;
+            landingPageContainer.innerHTML = dynamicHTML;
+        }
+
+        function loadLeaderboard() {
             fetch(endpointURL)
                 .then(res => res.json())
                 .then(scoresList => {
-                    // Keep a copy of the raw list for existing player identity evaluation
-                    globalCachedScores = scoresList;
+                    globalCachedScores = Array.isArray(scoresList) ? scoresList : [];
 
-                    // DEDUPLICATION: Preserve only the single fastest record per unique name entry
+                    // DEDUPLICATION LOOKUP ENGINE
                     const uniqueScoresMap = new Map();
-                    scoresList.forEach(entry => {
-                        const normalizedName = entry.name.trim().toLowerCase();
-                        const currentRecordTime = Number(entry.time);
-                        
-                        if (!uniqueScoresMap.has(normalizedName)) {
-                            uniqueScoresMap.set(normalizedName, entry);
-                        } else {
-                            if (currentRecordTime < Number(uniqueScoresMap.get(normalizedName).time)) {
+                    globalCachedScores.forEach(entry => {
+                        if (entry && entry.name) {
+                            const normalizedName = entry.name.trim().toLowerCase().replace(/\s+/g, ' ');
+                            const currentRecordTime = Number(entry.time) || 9999;
+                            
+                            if (!uniqueScoresMap.has(normalizedName)) {
                                 uniqueScoresMap.set(normalizedName, entry);
+                            } else {
+                                if (currentRecordTime < Number(uniqueScoresMap.get(normalizedName).time)) {
+                                    uniqueScoresMap.set(normalizedName, entry);
+                                }
                             }
                         }
                     });
 
-                    // Convert map entries back to sorted arrays
                     const filteredList = Array.from(uniqueScoresMap.values());
                     filteredList.sort((a, b) => Number(a.time) - Number(b.time));
-
-                    // Isolate target leaderboard constraints down to Top 10 rows safely
                     const topTen = filteredList.slice(0, 10);
 
-                    // Re-enable validation entry configurations now that caching loops completed safely
-                    document.getElementById('submitBtn').disabled = false;
-
-                    if(topTen.length === 0) {
-                        leaderboardContainer.innerHTML = `<li class="text-slate-500 italic text-center py-4">No benchmark modules tracked.</li>`;
-                        return;
-                    }
-
-                    leaderboardContainer.innerHTML = topTen.map((entry, idx) => {
-                        let badgeStyle = "text-slate-500";
-                        if (idx === 0) badgeStyle = "text-red-500 font-bold";
-                        if (idx === 1) badgeStyle = "text-amber-500 font-bold";
-                        if (idx === 2) badgeStyle = "text-sky-400 font-bold";
-
-                        return `
-                            <li class="flex items-center justify-between bg-[#172033]/40 border border-slate-800/60 rounded-lg p-2.5 hover:bg-[#172033]/80 transition-colors">
-                                <div class="flex items-center gap-2.5 truncate max-w-[75%]">
-                                    <span class="w-5 text-center text-xs font-mono ${badgeStyle}">0${idx + 1}</span>
-                                    <span class="font-medium text-slate-300 truncate" title="${entry.name}">${entry.name}</span>
-                                </div>
-                                <span class="font-mono text-xs font-bold text-red-400 shrink-0">${entry.time}s</span>
-                            </li>
-                        `;
-                    }).join('');
+                    renderLeaderboardLists(topTen);
                 })
                 .catch(err => {
                     console.error("Leaderboard loading error:", err);
-                    leaderboardContainer.innerHTML = `<li class="text-red-400/80 text-center text-xs py-4">Database pipeline offline</li>`;
-                    document.getElementById('submitBtn').disabled = false;
+                    
+                    const fallbackList = [];
+                    for(let i=0; i<localStorage.length; i++){
+                        const key = localStorage.key(i);
+                        if(key && key.startsWith("best_time_")){
+                            const cleanName = key.replace("best_time_", "").toUpperCase();
+                            fallbackList.push({ name: cleanName, time: localStorage.getItem(key) });
+                        }
+                    }
+                    
+                    fallbackList.sort((a,b) => Number(a.time) - Number(b.time));
+                    const topTenFallback = fallbackList.slice(0, 10);
+                    
+                    renderLeaderboardLists(topTenFallback);
                 });
         }
     </script>
