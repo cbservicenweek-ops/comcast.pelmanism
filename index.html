@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comcast Enterprise Process Framework Game</title>
+    <!-- Tailwind CSS Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* 3D Card Flip Animations */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        
+        /* Custom scrollbar for text-heavy cards to maintain clean aesthetic */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 2px; }
+
+        /* Incorrect Match Shake Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        /* Celebration Confetti Keyframes */
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 24px;
+            animation: confettiFall 4s linear infinite;
+            z-index: 60;
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden">
+
+    <!-- Celebration Screen Modal Overlay -->
+    <div id="celebrationModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4 overflow-hidden">
+        <div id="confettiContainer" class="absolute inset-0 pointer-events-none"></div>
+        
+        <div class="bg-[#111827] border-2 border-red-500/30 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center relative z-10 transform scale-95 transition-transform duration-500" id="celebrationCard">
+            <div id="victoryIcon" class="w-20 h-20 bg-gradient-to-tr from-red-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            
+            <h1 id="victoryHeading" class="text-3xl font-extrabold text-white mb-2 tracking-tight">Framework Verified!</h1>
+            <p id="victoryMessage" class="text-slate-400 text-sm mb-6">Excellent work, <span id="victoryPlayerName" class="text-red-400 font-bold">---</span>. You have successfully structured and validated all core operations modules.</p>
+            
+            <div class="bg-[#172033] border border-slate-800 rounded-xl p-4 mb-6 flex justify-around items-center">
+                <div>
+                    <p class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Total Duration</p>
+                    <p id="victoryTime" class="text-2xl font-mono font-bold text-red-400">0s</p>
+                </div>
+                <div class="h-8 w-px bg-slate-800"></div>
+                <div>
+                    <p id="metricLabel" class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Target Result</p>
+                    <p id="metricValue" class="text-2xl font-bold text-amber-400">Elite</p>
+                </div>
+            </div>
+
+            <button onclick="window.location.reload()" class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-red-500/10 transition-all duration-200 cursor-pointer">
+                Return to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Personal Record Challenge Warning Modal Overlay -->
+    <div id="challengeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#111827] border border-amber-500/30 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
+            <div class="w-14 h-14 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-100 tracking-tight">Returning Operator Detected</h2>
+            <p class="text-slate-400 mt-2 text-xs leading-relaxed">
+                Welcome back, <span id="challengePlayerName" class="text-amber-400 font-bold">---</span>! You already have an established baseline record on this server infrastructure.
+            </p>
+            <div class="bg-slate-950/50 border border-slate-800 rounded-xl my-5 p-3 font-mono">
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Your Time to Beat</p>
+                <p class="text-3xl font-bold text-amber-400 mt-1"><span id="timeToBeat">0</span>s</p>
+            </div>
+            <p class="text-slate-400 text-xs mb-6">Do you wish to optimize your deployment workflows and attempt to shatter your previous best score?</p>
+            <div class="flex gap-3">
+                <button onclick="window.location.reload()" class="w-1/3 bg-[#172033] hover:bg-slate-800 text-slate-300 font-medium py-2.5 px-4 rounded-lg text-xs transition-all cursor-pointer">
+                    Cancel
+                </button>
+                <button onclick="confirmChallengeMode()" class="w-2/3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-lg text-xs shadow-md shadow-amber-500/10 transition-all cursor-pointer">
+                    Initialize Challenge
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Modal Overlay (Required to start) -->
+    <div id="welcomeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-[#111827] border border-slate-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
+            <div class="flex justify-center items-center gap-1.5 mb-4 text-white font-black tracking-tighter text-2xl font-mono">
+                <span class="text-red-500 text-3xl font-sans font-normal leading-none -mt-1">c</span>omcast
+            </div>
+            <h1 class="text-xl font-bold text-slate-100 mb-1 tracking-tight">Operational Process Diagnostics</h1>
+            <p class="text-slate-400 mb-6 text-xs">Calibrate target system architectures by linking respective structural lifecycle benchmarks.</p>
+            <form id="startForm" onsubmit="verifyIdentityProfile(event)" class="space-y-4">
+                <div class="text-left">
+                    <label for="playerName" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Operator Full Name</label>
+                    <input type="text" id="playerName" required autocomplete="name" placeholder="e.g. John Doe" 
+                           class="w-full bg-[#172033] border border-slate-700 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-sm">
+                </div>
+                <button type="submit" id="submitBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-200 cursor-pointer disabled:opacity-50">
+                    Initialize Diagnostic Deck
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Game View Dashboard -->
+    <div class="max-w-[1600px] mx-auto p-4 lg:p-6 min-h-screen flex flex-col">
+        
+        <!-- Header Panel -->
+        <header class="bg-[#111827]/80 border border-slate-800 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 backdrop-blur-sm">
+            <div class="flex items-center gap-3">
+                <div class="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse"></div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">SYSTEM AGENT: <span id="displayPlayerName" class="text-white font-mono normal-case tracking-normal pl-1">---</span></h2>
+            </div>
+            
+            <!-- Dynamic KPI Trackers -->
+            <div class="flex items-center gap-8">
+                <div class="text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">ELAPSED TIME</p>
+                    <p id="timer" class="text-2xl font-mono font-bold text-white tabular-nums">00:00</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">RESOLVED SEGMENTS</p>
+                    <p id="pairsCount" class="text-2xl font-mono font-bold text-red-400">0/0</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- 3-Column Workspace Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6 flex-1">
+            
+            <!-- Left Column: Business Processes Reference -->
+            <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-5 flex flex-col">
+                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Target Processes</h3>
+                <div id="processList" class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1 custom-scrollbar">
+                    <!-- Dynamic process lists go here -->
+                </div>
+            </aside>
+
+            <!-- Middle Column: Main Interactive Card Grid -->
+            <main class="md:col-span-2 lg:col-span-3 flex flex-col justify-center">
+                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-2">
+                    <!-- Card items dynamically generated here -->
+                </div>
+            </main>
+
+            <!-- Right Column: Top 10 Leaderboard -->
+            <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-5 flex flex-col">
+                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Performance Index</h3>
+                <ol id="leaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[70vh] pr-1 custom-scrollbar text-sm">
+                    <!-- Leaderboard entries go here -->
+                </ol>
+            </aside>
+
+        </div>
+    </div>
+
+    <!-- Core Application Logic Script -->
+    <script>
+        // --- ADMIN CONFIGURATION OBJECT ---
+        const processesConfig = [
+            {
+                id: 1,
+                name: "How to Park",
+                before: "The driver approaches an empty space, signals intent early to warn trailing traffic, checks mirrors for cyclists, and aligns the vehicle parallel to the curb before beginning back-in maneuvers.",
+                after: "The vehicle settles squarely inside boundaries, the electronic parking brake engages firmly, the transmission locks into Park, and engine systems shut down safely to prevent unintended rollaways."
+            },
+            {
+                id: 2,
+                name: "Database Backup",
+                before: "System automation initiates a temporary transactional write lock, verifies schema integrity models, creates a distinct structural snapshot point, and isolates incoming active data pipelines.",
+                after: "The snapshot shifts seamlessly to distributed off-site server infrastructure, background processes recalculate checksum configurations, and system locks release to restore full operational capability."
+            },
+            {
+                id: 3,
+                name: "Customer Onboarding",
+                before: "The client provides verified structural profile inputs via an encrypted digital submission, triggers baseline system identity checks, and generates unique validation tokens.",
+                after: "Internal databases securely configure new records, access tokens ship automatically to the client's inbox, and dedicated onboarding paths initialize within centralized monitoring suites."
+            },
+            {
+                id: 4,
+                name: "Code Deployment",
+                before: "Engineering steps push staging branch items into central repositories, triggering automated unit testing architectures, package dependency audits, and container building workflows.",
+                after: "Active clusters execute graceful blue-green routing cutovers, telemetry frameworks monitor regression spikes, and continuous integration engines close structural development tickets."
+            }
+        ];
+
+        // --- GLOBAL APP STATE ---
+        let currentPlayerName = "";
+        let globalCachedScores = []; // Holds live parsed data records cleanly
+        let personalBestRecord = null;
+        let cardsData = [];
+        let flippedCards = [];
+        let matchedPairsCount = 0;
+        let timerInterval = null;
+        let timeElapsedSeconds = 0;
+        let isGameStarted = false;
+        let isProcessing = false;
+
+        const endpointURL = 'https://script.google.com/macros/s/AKfycbxvJmkt2gxmbHlAxpvP3091ZJRYYNo2eG1sTMyCD0-iE64UP7b0I8V6RXa-GKt7F6dg/exec';
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProcessList();
+            loadLeaderboard();
+        });
+
+        function renderProcessList() {
+            const listContainer = document.getElementById('processList');
+            listContainer.innerHTML = processesConfig.map(p => `
+                <div id="process-row-${p.id}" class="bg-[#172033]/40 border border-slate-800 rounded-xl p-3 shadow-sm transition-all duration-300">
+                    <div class="text-[10px] font-bold text-slate-400 tracking-wide mb-1 flex items-center justify-between">
+                        <span>MODULE 0${p.id}</span>
+                        <span class="status-badge text-[9px] font-mono font-normal opacity-0 transition-opacity bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 py-0.2 rounded">VERIFIED</span>
+                    </div>
+                    <div class="text-sm font-semibold text-slate-200 transition-colors process-title">${p.name}</div>
+                    <div class="text-[10px] text-slate-500 mt-1.5 flex gap-1.5 items-center">
+                        <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">Before</span>
+                        <span>➔</span>
+                        <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">After</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Intercept identity submissions to evaluate historical record entries
+        function verifyIdentityProfile(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('playerName').value.trim();
+            if(!nameInput) return;
+
+            document.getElementById('submitBtn').disabled = true;
+            currentPlayerName = nameInput;
+
+            // Search history array for matches using lower-case properties
+            const existingRecord = globalCachedScores.find(entry => entry.name.toLowerCase() === currentPlayerName.toLowerCase());
+
+            if (existingRecord) {
+                personalBestRecord = Number(existingRecord.time);
+                document.getElementById('challengePlayerName').textContent = existingRecord.name;
+                document.getElementById('timeToBeat').textContent = personalBestRecord;
+                
+                // Route user through Challenge Confirmation Prompt
+                document.getElementById('challengeModal').classList.remove('hidden');
+            } else {
+                personalBestRecord = null;
+                confirmStart();
+            }
+        }
+
+        function confirmChallengeMode() {
+            document.getElementById('challengeModal').classList.add('hidden');
+            confirmStart();
+        }
+
+        function confirmStart() {
+            document.getElementById('displayPlayerName').textContent = currentPlayerName;
+            document.getElementById('welcomeModal').classList.add('opacity-0', 'pointer-events-none');
+            initializeGrid();
+        }
+
+        function initializeGrid() {
+            cardsData = [];
+            processesConfig.forEach(p => {
+                cardsData.push({ id: p.id, type: 'Before', text: p.before });
+                cardsData.push({ id: p.id, type: 'After', text: p.after });
+            });
+
+            for (let i = cardsData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cardsData[i], cardsData[j]] = [cardsData[j], cardsData[i]];
+            }
+
+            const gridContainer = document.getElementById('gameGrid');
+            const totalCards = cardsData.length;
+            
+            if(totalCards <= 8) {
+                gridContainer.className = "grid gap-4 w-full max-w-4xl mx-auto grid-cols-2 sm:grid-cols-4";
+            } else if (totalCards <= 12) {
+                gridContainer.className = "grid gap-4 w-full max-w-5xl mx-auto grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
+            } else {
+                gridContainer.className = "grid gap-4 w-full max-w-6xl mx-auto grid-cols-2 sm:grid-cols-4 lg:grid-cols-6";
+            }
+
+            gridContainer.innerHTML = cardsData.map((card, index) => `
+                <div class="perspective-1000 aspect-[4/5] cursor-pointer" onclick="handleCardFlip(this, ${index})">
+                    <div class="w-full h-full relative transform-style-3d transition-transform duration-500 rounded-xl shadow-lg border border-slate-800">
+                        <div class="absolute inset-0 bg-gradient-to-br from-[#111827] to-[#1e293b] rounded-xl backface-hidden flex flex-col items-center justify-center p-4 border border-slate-800 group hover:border-red-500/40 transition-colors">
+                            <div class="h-10 w-10 rounded-full bg-slate-950 flex items-center justify-center border border-slate-800 shadow-inner group-hover:scale-110 group-hover:border-slate-700 transition-all duration-300">
+                                <span class="text-slate-500 font-mono text-xs font-bold transition-colors group-hover:text-red-400">::</span>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-[#0f172a] rounded-xl backface-hidden rotate-y-180 flex flex-col p-4 border-2 border-slate-800 overflow-hidden">
+                            <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-slate-800 shrink-0">
+                                <span id="card-badge-${index}" class="text-[9px] uppercase tracking-wider font-mono font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                                    ${card.type}
+                                </span>
+                            </div>
+                            <div class="flex-1 overflow-y-auto text-xs text-slate-300 leading-relaxed pr-1 custom-scrollbar select-none">
+                                ${card.text}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateKPIs();
+        }
+
+        function startTimer() {
+            isGameStarted = true;
+            timeElapsedSeconds = 0;
+            timerInterval = setInterval(() => {
+                timeElapsedSeconds++;
+                const mins = String(Math.floor(timeElapsedSeconds / 60)).padStart(2, '0');
+                const secs = String(timeElapsedSeconds % 60).padStart(2, '0');
+                document.getElementById('timer').textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function updateKPIs() {
+            document.getElementById('pairsCount').textContent = `${matchedPairsCount} / ${processesConfig.length}`;
+        }
+
+        function handleCardFlip(cardWrapper, dataIndex) {
+            if (isProcessing) return;
+            
+            const cardInner = cardWrapper.firstElementChild;
+            if (cardInner.classList.contains('rotate-y-180') || cardInner.classList.contains('is-matched')) return;
+
+            if (!isGameStarted) startTimer();
+
+            cardInner.classList.add('rotate-y-180');
+            flippedCards.push({ wrapper: cardWrapper, inner: cardInner, data: cardsData[dataIndex], elementIndex: dataIndex });
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            isProcessing = true;
+            const [cardA, cardB] = flippedCards;
+
+            const isSameProcess = (cardA.data.id === cardB.data.id);
+            const isComplementaryTypes = (cardA.data.type !== cardB.data.type);
+
+            if (isSameProcess && isComplementaryTypes) {
+                matchedPairsCount++;
+                updateKPIs();
+
+                const processRow = document.getElementById(`process-row-${cardA.data.id}`);
+                if (processRow) {
+                    processRow.classList.remove('bg-[#172033]/40', 'border-slate-800');
+                    processRow.classList.add('bg-red-500/10', 'border-red-500/40', 'shadow-sm', 'shadow-red-500/5');
+                    processRow.querySelector('.process-title').classList.remove('text-slate-200');
+                    processRow.querySelector('.process-title').classList.add('text-red-400');
+                    processRow.querySelector('.status-badge').classList.remove('opacity-0');
+                }
+
+                flippedCards.forEach(c => {
+                    c.inner.classList.add('is-matched');
+                    c.inner.classList.remove('border-slate-800');
+                    c.inner.classList.add('border-red-500/50', 'shadow-md', 'shadow-red-500/5');
+                    
+                    const badge = document.getElementById(`card-badge-${c.elementIndex}`);
+                    if (badge) {
+                        badge.textContent = `${c.data.type} - Process ${c.data.id}`;
+                        badge.classList.remove('text-slate-400', 'bg-slate-900');
+                        badge.classList.add('text-red-400', 'bg-red-500/10', 'border-red-500/20');
+                    }
+                });
+
+                flippedCards = [];
+                isProcessing = false;
+
+                if (matchedPairsCount === processesConfig.length) {
+                    endGame();
+                }
+            } else {
+                setTimeout(() => {
+                    flippedCards.forEach(c => c.wrapper.classList.add('animate-shake'));
+                }, 200);
+
+                setTimeout(() => {
+                    flippedCards.forEach(c => {
+                        c.wrapper.classList.remove('animate-shake');
+                        c.inner.classList.remove('rotate-y-180');
+                    });
+                    flippedCards = [];
+                    isProcessing = false;
+                }, 1000);
+            }
+        }
+
+        function runCelebrationFX() {
+            const container = document.getElementById('confettiContainer');
+            container.innerHTML = '';
+            const colors = ['#FF4B2B', '#FF2A54', '#38BDF8', '#F59E0B', '#10B981'];
+            
+            for (let i = 0; i < 75; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.transform = `scale(${Math.random() * 0.6 + 0.4})`;
+                
+                const delay = Math.random() * 3;
+                const duration = Math.random() * 2 + 2;
+                confetti.style.animationDelay = delay + 's';
+                confetti.style.animationDuration = duration + 's';
+                
+                container.appendChild(confetti);
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            isGameStarted = false;
+            
+            setTimeout(() => {
+                const heading = document.getElementById('victoryHeading');
+                const msg = document.getElementById('victoryMessage');
+                const lbl = document.getElementById('metricLabel');
+                const val = document.getElementById('metricValue');
+                const iconContainer = document.getElementById('victoryIcon');
+
+                document.getElementById('victoryPlayerName').textContent = currentPlayerName;
+                document.getElementById('victoryTime').textContent = `${timeElapsedSeconds}s`;
+
+                // Determine context-aware text variations based on personal record comparisons
+                if (personalBestRecord !== null) {
+                    if (timeElapsedSeconds < personalBestRecord) {
+                        // Success: PR Broken
+                        heading.textContent = "Record Shattered!";
+                        heading.className = "text-3xl font-extrabold text-amber-400 mb-2 tracking-tight";
+                        msg.innerHTML = `Incredible optimization, <span class="text-amber-400 font-bold">${currentPlayerName}</span>! You successfully trimmed your framework diagnostic time down.`;
+                        lbl.textContent = "Previous Best";
+                        val.textContent = `${personalBestRecord}s`;
+                        val.className = "text-2xl font-bold text-slate-400";
+                        iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20";
+                        runCelebrationFX();
+                    } else {
+                        // Failure: PR Unchanged
+                        heading.textContent = "Nice Try!";
+                        heading.className = "text-3xl font-extrabold text-slate-300 mb-2 tracking-tight";
+                        msg.innerHTML = `Systems checked, <span class="text-white font-bold">${currentPlayerName}</span>. You matched all modules, but couldn't quite beat your historical benchmark record.`;
+                        lbl.textContent = "Target PR";
+                        val.textContent = `${personalBestRecord}s`;
+                        val.className = "text-2xl font-bold text-red-400";
+                        iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-slate-700 to-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600";
+                    }
+                } else {
+                    // Standard routing for brand new profiles
+                    heading.textContent = "Framework Verified!";
+                    heading.className = "text-3xl font-extrabold text-white mb-2 tracking-tight";
+                    lbl.textContent = "Accuracy Rank";
+                    val.textContent = "Elite";
+                    val.className = "text-2xl font-bold text-amber-400";
+                    iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-red-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20";
+                    runCelebrationFX();
+                }
+                
+                const modal = document.getElementById('celebrationModal');
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('celebrationCard').classList.remove('scale-95');
+                    document.getElementById('celebrationCard').classList.add('scale-100');
+                }, 50);
+
+                saveScore(currentPlayerName, timeElapsedSeconds);
+            }, 600);
+        }
+
+        // --- PERSISTENCE & LEADERBOARD SYSTEM ---
+        function saveScore(name, time) {
+            localStorage.setItem(`best_time_${name}`, time);
+            
+            fetch(endpointURL, {
+                method: 'POST',
+                redirect: 'follow', 
+                dataType: 'json',
+                accepts: 'application/json',
+                body: JSON.stringify({ name: name, time: time })
+            })
+            .then(() => {
+                loadLeaderboard();
+            })
+            .catch(error => console.error('Global save execution failure:', error));
+        }
+
+        function loadLeaderboard() {
+            const leaderboardContainer = document.getElementById('leaderboardList');
+
+            fetch(endpointURL)
+                .then(res => res.json())
+                .then(scoresList => {
+                    // Keep a copy of the raw list for existing player identity evaluation
+                    globalCachedScores = scoresList;
+
+                    // DEDUPLICATION: Preserve only the single fastest record per unique name entry
+                    const uniqueScoresMap = new Map();
+                    scoresList.forEach(entry => {
+                        const normalizedName = entry.name.trim().toLowerCase();
+                        const currentRecordTime = Number(entry.time);
+                        
+                        if (!uniqueScoresMap.has(normalizedName)) {
+                            uniqueScoresMap.set(normalizedName, entry);
+                        } else {
+                            if (currentRecordTime < Number(uniqueScoresMap.get(normalizedName).time)) {
+                                uniqueScoresMap.set(normalizedName, entry);
+                            }
+                        }
+                    });
+
+                    // Convert map entries back to sorted arrays
+                    const filteredList = Array.from(uniqueScoresMap.values());
+                    filteredList.sort((a, b) => Number(a.time) - Number(b.time));
+
+                    // Isolate target leaderboard constraints down to Top 10 rows safely
+                    const topTen = filteredList.slice(0, 10);
+
+                    // Re-enable validation entry configurations now that caching loops completed safely
+                    document.getElementById('submitBtn').disabled = false;
+
+                    if(topTen.length === 0) {
+                        leaderboardContainer.innerHTML = `<li class="text-slate-500 italic text-center py-4">No benchmark modules tracked.</li>`;
+                        return;
+                    }
+
+                    leaderboardContainer.innerHTML = topTen.map((entry, idx) => {
+                        let badgeStyle = "text-slate-500";
+                        if (idx === 0) badgeStyle = "text-red-500 font-bold";
+                        if (idx === 1) badgeStyle = "text-amber-500 font-bold";
+                        if (idx === 2) badgeStyle = "text-sky-400 font-bold";
+
+                        return `
+                            <li class="flex items-center justify-between bg-[#172033]/40 border border-slate-800/60 rounded-lg p-2.5 hover:bg-[#172033]/80 transition-colors">
+                                <div class="flex items-center gap-2.5 truncate max-w-[75%]">
+                                    <span class="w-5 text-center text-xs font-mono ${badgeStyle}">0${idx + 1}</span>
+                                    <span class="font-medium text-slate-300 truncate" title="${entry.name}">${entry.name}</span>
+                                </div>
+                                <span class="font-mono text-xs font-bold text-red-400 shrink-0">${entry.time}s</span>
+                            </li>
+                        `;
+                    }).join('');
+                })
+                .catch(err => {
+                    console.error("Leaderboard loading error:", err);
+                    leaderboardContainer.innerHTML = `<li class="text-red-400/80 text-center text-xs py-4">Database pipeline offline</li>`;
+                    document.getElementById('submitBtn').disabled = false;
+                });
+        }
+    </script>
+</body>
+</html>
