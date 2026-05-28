@@ -41,6 +41,7 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden">
 
+    <!-- Victory Celebration Overlay -->
     <div id="celebrationModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4 overflow-hidden">
         <div id="confettiContainer" class="absolute inset-0 pointer-events-none"></div>
         
@@ -72,6 +73,7 @@
         </div>
     </div>
 
+    <!-- Challenge Overlay (Returning Operators) -->
     <div id="challengeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#111827] border border-amber-500/30 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
             <div class="w-14 h-14 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -92,13 +94,14 @@
                 <button onclick="window.location.reload()" class="w-1/3 bg-[#172033] hover:bg-slate-800 text-slate-300 font-medium py-2.5 px-4 rounded-lg text-xs transition-all cursor-pointer">
                     Cancel
                 </button>
-                <button onclick="confirmChallengeMode()" class="w-2/3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-lg text-xs shadow-md shadow-amber-500/10 transition-all cursor-pointer">
+                <button id="initChallengeBtn" class="w-2/3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 px-4 rounded-lg text-xs shadow-md shadow-amber-500/10 transition-all cursor-pointer">
                     Initialize Challenge
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- Entrance Landing Portal Overlay -->
     <div id="welcomeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-[#111827] border border-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start my-auto">
             
@@ -111,7 +114,7 @@
                     <p class="text-slate-400 mt-1 text-xs leading-relaxed">Calibrate target system architectures by linking respective structural lifecycle benchmarks.</p>
                 </div>
                 
-                <form id="startForm" onsubmit="verifyIdentityProfile(event)" class="space-y-4 pt-2">
+                <form id="startForm" class="space-y-4 pt-2">
                     <div class="text-left">
                         <label for="playerName" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Operator Full Name</label>
                         <input type="text" id="playerName" required autocomplete="name" placeholder="e.g. John Doe" 
@@ -144,6 +147,7 @@
         </div>
     </div>
 
+    <!-- Main Game Dashboard System -->
     <div class="max-w-[1700px] mx-auto p-4 lg:p-6 min-h-screen flex flex-col">
         
         <header class="bg-[#111827]/80 border border-slate-800 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 backdrop-blur-sm">
@@ -166,6 +170,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-5 gap-6 flex-1">
             
+            <!-- Left reference panel -->
             <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col">
                 <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Target Processes</h3>
                 <div id="processList" class="space-y-2.5 flex-1 overflow-y-auto max-h-[74vh] pr-1 custom-scrollbar">
@@ -173,80 +178,54 @@
                 </div>
             </aside>
 
+            <!-- Main Interactive Area Grid -->
             <main class="md:col-span-3 flex flex-col justify-start">
-                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-1">
-                    </div>
+                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-1"></div>
             </main>
 
+            <!-- Right Leaderboard Sidebar -->
             <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col">
                 <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Performance Index</h3>
                 <ol id="leaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[74vh] pr-1 custom-scrollbar text-sm">
-                    </ol>
+                    <li class="text-slate-500 italic text-center py-4 text-xs">Syncing ranks...</li>
+                </ol>
             </aside>
 
         </div>
     </div>
 
-    <script>
-        // --- ADMIN CONFIGURATION OBJECT (9 Total Business Processes) ---
+    <!-- MODULAR FIREBASE GAME APP IMPLEMENTATION SYSTEM -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+        // Plugged in exact Step 3 Credentials
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBEEGFGmh_6d4rE1Yk8yXG0ggHZTRFjnY",
+            authDomain: "cb-pelmanism.firebaseapp.com",
+            projectId: "cb-pelmanism",
+            storageBucket: "cb-pelmanism.firebasestorage.app",
+            messagingSenderId: "1096885858306",
+            appId: "1:1096885858306:web:aa4f4c5a0ea3a85e34f71b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // --- CORE PROCESS CONFIG ARRAY (9 Matrix Rows) ---
         const processesConfig = [
-            {
-                id: 1,
-                name: "Park a ticket",
-                before: "Change Incident State to Awaiting Response/Action – Provider or Awaiting Response/Action – Customer",
-                after: "Change Case Status to Awaiting Info"
-            },
-            {
-                id: 2,
-                name: "Update the Next Action Due time/date",
-                before: "Select the appropriate action from the Next Action drop down menu.  Choose the Next Action Due time and date from the Next Action Due field.  NOTE: Ilex uses Eastern Standard Time to account for the customer’s local time zone when choosing the Next Action Due time",
-                after: "Select the appropriate action from the Next Action Message drop down menu.  Choose the Next Action time and date from the Next Action field.  NOTE: ServiceNow uses your local time zone if you set it up correctly in your profile.  Enter the time in 24 hour format (no AM/PM)"
-            },
-            {
-                id: 3,
-                name: "Assign/Unassign a ticket",
-                before: "To assign a ticket to yourself, choose your Assignment Group from the Assignment Group drop down menu.  Then select your name in the Assignee field.  To reassign a ticket, choose the appropriate Assignment Group.  If assigning to a specific person choose their name in the Assignee field.  To unassign a ticket from yourself, choose the Unassigned User or Passdown in the Assignee field",
-                after: "To assign a ticket to yourself choose Assign to me from the buttons at the top of the Case form.  To reassign another person, choose their group in the Assignment group drop down menu.  Then choose their name from the Assigned to drop down menu.  To remove yourself from the Case choose Unassign from the buttons at the top of the Case form"
-            },
-            {
-                id: 4,
-                name: "Update ticket work notes",
-                before: "Enter your notes in the Work Note field.  Choose Internal if this should be an internal Work Note.  Choose Client Facing (Corporate) if the customer should see your Work Note.  Use the drop down menu under the Work Note field.  Remember to Save your ticket progress",
-                after: "Choose the Notes tab.  Enter your work notes in the Additional comments (Customer visible) field if the customer should see your notes.  Enter internal notes in the Work notes field.  Click on Post to save your progress"
-            },
-            {
-                id: 5,
-                name: "Search for ticket history/open tickets for a site/client ",
-                before: "Choose the customer in the Customers field under one of the tabs in the NOC Helpdesk screen.  Filter by ticket state using the State column.  For Closed Tickets choose Closed Ticket Search, then choose your Customer from the drop down menu",
-                after: "Choose Cases – All.  Enter your customer in the Site Owner column.  Choose the filter Open Ticket Filter.  For closed tickets you can modify the filter to show only Resolved, Closed, or Cancelled Cases"
-            },
-            {
-                id: 6,
-                name: "Find device up/down status in a Case and compare with MiDEC",
-                before: "Use MIDEC",
-                after: "In the Case check the Monitoring Tab for up/down status of monitored devices.  In MIDEC search for the customer and site number to check monitored devices"
-            },
-            {
-                id: 7,
-                name: "Find ISP details in Pivot for a client site",
-                before: "Open up Pivot and search by customer site code and site number to view the ISP providers of Off-Net locations.  Use Café to search for On-Net locations",
-                after: "In the Case scroll to the bottom of the form and check the ISP Providers tab"
-            },
-            {
-                id: 8,
-                name: "Open/close a ticket",
-                before: "Choose the blue Create Ticket button.  Fill in all fields with a red bar that is required.  Once all fields are filled in the Blue Save button will become active.  To close a ticket, enter and save your Work Note.  Then choose Resolved from the Incident State drop down menu.  Choose the appropriate options in the Point of Failure, Root Cause, and Resolution drop down menus",
-                after: "Choose Cases – Create New from the All or Favorites drop down menus.  Fill in all fields with an asterisk that is required.  Click on Save.  To close a Case, enter your Work notes.  Choose Case Status from the Case Status drop down menu.  Fill in the fields under the Resolution Information tab.  Choose Save"
-            },
-            {
-                id: 9,
-                name: "Set up a CNS Dispatch",
-                before: "In your ticket click on the blue Dispatch Request button.  Fill in all the fields with a red bar.  Choose the Preferred Arrival date and time agreed upon with the customer.  After choosing Submit, check the Work Note field in your Ilex ticket and the Dispatch Ticket# field",
-                after: "In your Case choose the Dispatch Request button at the top of the screen.  Fill in the fields with an asterisk.  Fill in what needs to be done in the Work notes under the Notes tab.  Choose Save.  Check the Work notes under the Notes tab in your Case for the Dispatch ticket number.  You can also check the Tasks tab at the bottom of the Case form"
-            }
+            { id: 1, name: "Park a ticket", before: "Change Incident State to Awaiting Response/Action – Provider or Awaiting Response/Action – Customer", after: "Change Case Status to Awaiting Info" },
+            { id: 2, name: "Update the Next Action Due time/date", before: "Select the appropriate action from the Next Action drop down menu.  Choose the Next Action Due time and date from the Next Action Due field.  NOTE: Ilex uses Eastern Standard Time to account for the customer’s local time zone when choosing the Next Action Due time", after: "Select the appropriate action from the Next Action Message drop down menu.  Choose the Next Action time and date from the Next Action field.  NOTE: ServiceNow uses your local time zone if you set it up correctly in your profile.  Enter the time in 24 hour format (no AM/PM)" },
+            { id: 3, name: "Assign/Unassign a ticket", before: "To assign a ticket to yourself, choose your Assignment Group from the Assignment Group drop down menu.  Then select your name in the Assignee field.  To reassign a ticket, choose the appropriate Assignment Group.  If assigning to a specific person choose their name in the Assignee field.  To unassign a ticket from yourself, choose the Unassigned User or Passdown in the Assignee field", after: "To assign a ticket to yourself choose Assign to me from the buttons at the top of the Case form.  To reassign another person, choose their group in the Assignment group drop down menu.  Then choose their name from the Assigned to drop down menu.  To remove yourself from the Case choose Unassign from the buttons at the top of the Case form" },
+            { id: 4, name: "Update ticket work notes", before: "Enter your notes in the Work Note field.  Choose Internal if this should be an internal Work Note.  Choose Client Facing (Corporate) if the customer should see your Work Note.  Use the drop down menu under the Work Note field.  Remember to Save your ticket progress", after: "Choose the Notes tab.  Enter your work notes in the Additional comments (Customer visible) field if the customer should see your notes.  Enter internal notes in the Work notes field.  Click on Post to save your progress" },
+            { id: 5, name: "Search for ticket history/open tickets for a site/client", before: "Choose the customer in the Customers field under one of the tabs in the NOC Helpdesk screen.  Filter by ticket state using the State column.  For Closed Tickets choose Closed Ticket Search, then choose your Customer from the drop down menu", after: "Choose Cases – All.  Enter your customer in the Site Owner column.  Choose the filter Open Ticket Filter.  For closed tickets you can modify the filter to show only Resolved, Closed, or Cancelled Cases" },
+            { id: 6, name: "Find device up/down status in a Case and compare with MiDEC", before: "Use MIDEC", after: "In the Case check the Monitoring Tab for up/down status of monitored devices.  In MIDEC search for the customer and site number to check monitored devices" },
+            { id: 7, name: "Find ISP details in Pivot for a client site", before: "Open up Pivot and search by customer site code and site number to view the ISP providers of Off-Net locations.  Use Café to search for On-Net locations", after: "In the Case scroll to the bottom of the form and check the ISP Providers tab" },
+            { id: 8, name: "Open/close a ticket", before: "Choose the blue Create Ticket button.  Fill in all fields with a red bar that is required.  Once all fields are filled in the Blue Save button will become active.  To close a ticket, enter and save your Work Note.  Then choose Resolved from the Incident State drop down menu.  Choose the appropriate options in the Point of Failure, Root Cause, and Resolution drop down menus", after: "Choose Cases – Create New from the All or Favorites drop down menus.  Fill in all fields with an asterisk that is required.  Click on Save.  To close a Case, enter your Work notes.  Choose Case Status from the Case Status drop down menu.  Fill in the fields under the Resolution Information tab.  Choose Save" },
+            { id: 9, name: "Set up a CNS Dispatch", before: "In your ticket click on the blue Dispatch Request button.  Fill in all the fields with a red bar.  Choose the Preferred Arrival date and time agreed upon with the customer.  After choosing Submit, check the Work Note field in your Ilex ticket and the Dispatch Ticket# field", after: "In your Case choose the Dispatch Request button at the top of the screen.  Fill in the fields with an asterisk.  Fill in what needs to be done in the Work notes under the Notes tab.  Choose Save.  Check the Work notes under the Notes tab in your Case for the Dispatch ticket number.  You can also check the Tasks tab at the bottom of the Case form" }
         ];
 
-        // --- GLOBAL APP STATE ---
+        // Global Game States
         let currentPlayerName = "";
         let personalBestRecord = null;
         let selectedProcesses = []; 
@@ -258,12 +237,77 @@
         let isGameStarted = false;
         let isProcessing = false;
 
-        const endpointURL = 'https://script.google.com/macros/s/AKfycbxvJmkt2gxmbHlAxpvP3091ZJRYYNo2eG1sTMyCD0-iE64UP7b0I8V6RXa-GKt7F6dg/exec';
+        // Form Event Bindings
+        document.getElementById('startForm').addEventListener('submit', verifyIdentityProfile);
+        document.getElementById('initChallengeBtn').addEventListener('click', confirmChallengeMode);
 
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            loadLeaderboard();
-        });
+        // Run leaderboard download instantly on startup
+        loadLeaderboard();
+
+        async function verifyIdentityProfile(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const nameInput = document.getElementById('playerName').value.trim();
+            if (!nameInput) return;
+
+            // Prevent double taps while searching cloud backend
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Querying Database...";
+
+            currentPlayerName = nameInput;
+            const cleanNameKey = currentPlayerName.toLowerCase().replace(/\s+/g, ' ');
+
+            try {
+                // INSTANT CLOUD VERIFICATION LOGIC
+                const scoresRef = collection(db, "leaderboard");
+                const q = query(scoresRef, where("searchName", "==", cleanNameKey), orderBy("time", "asc"), limit(1));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const fastestRun = querySnapshot.docs[0].data();
+                    personalBestRecord = Number(fastestRun.time);
+                    
+                    document.getElementById('challengePlayerName').textContent = currentPlayerName;
+                    document.getElementById('timeToBeat').textContent = personalBestRecord;
+                    document.getElementById('challengeModal').classList.remove('hidden');
+                } else {
+                    personalBestRecord = null;
+                    confirmStart();
+                }
+            } catch (err) {
+                console.error("Cloud verification bypassed, falling back to local:", err);
+                // Fail-safe local backup lookup
+                const fallbackLocal = localStorage.getItem(`best_time_${cleanNameKey}`);
+                if (fallbackLocal) {
+                    personalBestRecord = Number(fallbackLocal);
+                    document.getElementById('challengePlayerName').textContent = currentPlayerName;
+                    document.getElementById('timeToBeat').textContent = personalBestRecord;
+                    document.getElementById('challengeModal').classList.remove('hidden');
+                } else {
+                    confirmStart();
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Initialize Diagnostic Deck";
+            }
+        }
+
+        function confirmChallengeMode() {
+            document.getElementById('challengeModal').classList.add('hidden');
+            confirmStart();
+        }
+
+        function confirmStart() {
+            document.getElementById('displayPlayerName').textContent = currentPlayerName;
+            document.getElementById('welcomeModal').classList.add('hidden');
+            
+            // Pick 6 random items
+            const shuffledPool = [...processesConfig].sort(() => 0.5 - Math.random());
+            selectedProcesses = shuffledPool.slice(0, 6);
+            
+            renderActiveProcessList();
+            initializeGrid();
+        }
 
         function renderActiveProcessList() {
             const listContainer = document.getElementById('processList');
@@ -283,48 +327,6 @@
             `).join('');
         }
 
-        // --- INSTANT RESPONSE ENGINE (FIXES BLANK SYSTEM FREEZE) ---
-        function verifyIdentityProfile(event) {
-            event.preventDefault();
-            const nameInput = document.getElementById('playerName').value.trim();
-            if(!nameInput) return;
-
-            currentPlayerName = nameInput;
-            const normalizedName = currentPlayerName.toLowerCase().replace(/\s+/g, ' ');
-            
-            // Look up the name locally first. This operates instantaneously.
-            const localSavedBest = localStorage.getItem(`best_time_${normalizedName}`);
-
-            if (localSavedBest) {
-                personalBestRecord = Number(localSavedBest);
-                document.getElementById('challengePlayerName').textContent = currentPlayerName;
-                document.getElementById('timeToBeat').textContent = personalBestRecord;
-                
-                // Show challenge notification panel
-                document.getElementById('challengeModal').classList.remove('hidden');
-            } else {
-                personalBestRecord = null;
-                confirmStart();
-            }
-        }
-
-        function confirmChallengeMode() {
-            document.getElementById('challengeModal').classList.add('hidden');
-            confirmStart();
-        }
-
-        function confirmStart() {
-            document.getElementById('displayPlayerName').textContent = currentPlayerName;
-            document.getElementById('welcomeModal').classList.add('opacity-0', 'pointer-events-none');
-            
-            // Draw 6 random processes from our total pool array
-            const shuffledPool = [...processesConfig].sort(() => 0.5 - Math.random());
-            selectedProcesses = shuffledPool.slice(0, 6);
-            
-            renderActiveProcessList();
-            initializeGrid();
-        }
-
         function initializeGrid() {
             cardsData = [];
             selectedProcesses.forEach(p => {
@@ -332,19 +334,13 @@
                 cardsData.push({ id: p.id, type: 'After', text: p.after });
             });
 
-            // Randomize position placement mix
-            for (let i = cardsData.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [cardsData[i], cardsData[j]] = [cardsData[j], cardsData[i]];
-            }
+            cardsData.sort(() => Math.random() - 0.5);
 
             const gridContainer = document.getElementById('gameGrid');
-            
-            // Generates a responsive grid built for 12 cards (6 pairs)
             gridContainer.className = "grid gap-4 w-full max-w-5xl mx-auto grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
 
             gridContainer.innerHTML = cardsData.map((card, index) => `
-                <div class="perspective-1000 aspect-[5/4.5] cursor-pointer" onclick="handleCardFlip(this, ${index})">
+                <div class="perspective-1000 aspect-[5/4.5] cursor-pointer" data-index="${index}">
                     <div class="w-full h-full relative transform-style-3d transition-transform duration-500 rounded-xl shadow-lg border border-slate-800">
                         <div class="absolute inset-0 bg-gradient-to-br from-[#111827] to-[#1e293b] rounded-xl backface-hidden flex flex-col items-center justify-center p-4 border border-slate-800 group hover:border-red-500/40 transition-colors">
                             <div class="h-12 w-12 rounded-full bg-slate-950 flex items-center justify-center border border-slate-800 shadow-inner group-hover:scale-110 group-hover:border-slate-700 transition-all duration-300">
@@ -357,7 +353,7 @@
                                     ${card.type}
                                 </span>
                             </div>
-                            <div class="flex-1 overflow-y-auto text-sm text-slate-200 leading-relaxed pr-1 custom-scrollbar select-none font-medium">
+                            <div class="flex-1 overflow-y-auto text-[11px] text-slate-200 leading-relaxed pr-1 custom-scrollbar select-none font-medium">
                                 ${card.text}
                             </div>
                         </div>
@@ -365,22 +361,15 @@
                 </div>
             `).join('');
 
+            // Safe event listener attaching
+            gridContainer.querySelectorAll('.perspective-1000').forEach(el => {
+                el.addEventListener('click', function() {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    handleCardFlip(this, idx);
+                });
+            });
+
             updateKPIs();
-        }
-
-        function startTimer() {
-            isGameStarted = true;
-            timeElapsedSeconds = 0;
-            timerInterval = setInterval(() => {
-                timeElapsedSeconds++;
-                const mins = String(Math.floor(timeElapsedSeconds / 60)).padStart(2, '0');
-                const secs = String(timeElapsedSeconds % 60).padStart(2, '0');
-                document.getElementById('timer').textContent = `${mins}:${secs}`;
-            }, 1000);
-        }
-
-        function updateKPIs() {
-            document.getElementById('pairsCount').textContent = `${matchedPairsCount} / ${selectedProcesses.length}`;
         }
 
         function handleCardFlip(cardWrapper, dataIndex) {
@@ -397,6 +386,21 @@
             if (flippedCards.length === 2) {
                 checkMatch();
             }
+        }
+
+        function startTimer() {
+            isGameStarted = true;
+            timeElapsedSeconds = 0;
+            timerInterval = setInterval(() => {
+                timeElapsedSeconds++;
+                const mins = String(Math.floor(timeElapsedSeconds / 60)).padStart(2, '0');
+                const secs = String(timeElapsedSeconds % 60).padStart(2, '0');
+                document.getElementById('timer').textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function updateKPIs() {
+            document.getElementById('pairsCount').textContent = `${matchedPairsCount} / ${selectedProcesses.length}`;
         }
 
         function checkMatch() {
@@ -458,104 +462,133 @@
             const container = document.getElementById('confettiContainer');
             container.innerHTML = '';
             const colors = ['#FF4B2B', '#FF2A54', '#38BDF8', '#F59E0B', '#10B981'];
-            
             for (let i = 0; i < 75; i++) {
                 const confetti = document.createElement('div');
                 confetti.classList.add('confetti');
                 confetti.style.left = Math.random() * 100 + 'vw';
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 confetti.style.transform = `scale(${Math.random() * 0.6 + 0.4})`;
-                
                 const delay = Math.random() * 3;
                 const duration = Math.random() * 2 + 2;
                 confetti.style.animationDelay = delay + 's';
                 confetti.style.animationDuration = duration + 's';
-                
                 container.appendChild(confetti);
             }
         }
 
-        function endGame() {
+        async function endGame() {
             clearInterval(timerInterval);
             isGameStarted = false;
             
-            setTimeout(() => {
-                const heading = document.getElementById('victoryHeading');
-                const msg = document.getElementById('victoryMessage');
-                const lbl = document.getElementById('metricLabel');
-                const val = document.getElementById('metricValue');
-                const iconContainer = document.getElementById('victoryIcon');
+            const heading = document.getElementById('victoryHeading');
+            const msg = document.getElementById('victoryMessage');
+            const lbl = document.getElementById('metricLabel');
+            const val = document.getElementById('metricValue');
+            const iconContainer = document.getElementById('victoryIcon');
 
-                document.getElementById('victoryPlayerName').textContent = currentPlayerName;
-                document.getElementById('victoryTime').textContent = `${timeElapsedSeconds}s`;
+            document.getElementById('victoryPlayerName').textContent = currentPlayerName;
+            document.getElementById('victoryTime').textContent = `${timeElapsedSeconds}s`;
 
-                if (personalBestRecord !== null) {
-                    if (timeElapsedSeconds < personalBestRecord) {
-                        heading.textContent = "Record Shattered!";
-                        heading.className = "text-3xl font-extrabold text-amber-400 mb-2 tracking-tight";
-                        msg.innerHTML = `Incredible optimization, <span class="text-amber-400 font-bold">${currentPlayerName}</span>! You successfully trimmed your framework diagnostic time down.`;
-                        lbl.textContent = "Previous Best";
-                        val.textContent = `${personalBestRecord}s`;
-                        val.className = "text-2xl font-bold text-slate-400";
-                        iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20";
-                        runCelebrationFX();
-                    } else {
-                        heading.textContent = "Nice Try!";
-                        heading.className = "text-3xl font-extrabold text-slate-300 mb-2 tracking-tight";
-                        msg.innerHTML = `Systems checked, <span class="text-white font-bold">${currentPlayerName}</span>. You matched all modules, but couldn't quite beat your historical benchmark record.`;
-                        lbl.textContent = "Target PR";
-                        val.textContent = `${personalBestRecord}s`;
-                        val.className = "text-2xl font-bold text-red-400";
-                        iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-slate-700 to-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600";
-                    }
-                } else {
-                    heading.textContent = "Framework Verified!";
-                    heading.className = "text-3xl font-extrabold text-white mb-2 tracking-tight";
-                    lbl.textContent = "Accuracy Rank";
-                    val.textContent = "Elite";
-                    val.className = "text-2xl font-bold text-amber-400";
-                    iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-red-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20";
+            if (personalBestRecord !== null) {
+                if (timeElapsedSeconds < personalBestRecord) {
+                    heading.textContent = "Record Shattered!";
+                    heading.className = "text-3xl font-extrabold text-amber-400 mb-2 tracking-tight";
+                    msg.innerHTML = `Incredible optimization, <span class="text-amber-400 font-bold">${currentPlayerName}</span>! You successfully trimmed your framework diagnostic time down.`;
+                    lbl.textContent = "Previous Best";
+                    val.textContent = `${personalBestRecord}s`;
+                    val.className = "text-2xl font-bold text-slate-400";
+                    iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20";
                     runCelebrationFX();
+                } else {
+                    heading.textContent = "Nice Try!";
+                    heading.className = "text-3xl font-extrabold text-slate-300 mb-2 tracking-tight";
+                    msg.innerHTML = `Systems checked, <span class="text-white font-bold">${currentPlayerName}</span>. You matched all modules, but couldn't quite beat your historical benchmark record.`;
+                    lbl.textContent = "Target PR";
+                    val.textContent = `${personalBestRecord}s`;
+                    val.className = "text-2xl font-bold text-red-400";
+                    iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-slate-700 to-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600";
                 }
-                
-                const modal = document.getElementById('celebrationModal');
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    document.getElementById('celebrationCard').classList.remove('scale-95');
-                    document.getElementById('celebrationCard').classList.add('scale-100');
-                }, 50);
-
-                saveScore(currentPlayerName, timeElapsedSeconds);
-            }, 600);
-        }
-
-        // --- PERSISTENCE & LEADERBOARD SYSTEM ---
-        function saveScore(name, time) {
-            const normalizedSaveName = name.trim().toLowerCase().replace(/\s+/g, ' ');
-            const localBest = localStorage.getItem(`best_time_${normalizedSaveName}`);
-            
-            if (!localBest || time < Number(localBest)) {
-                localStorage.setItem(`best_time_${normalizedSaveName}`, time);
+            } else {
+                heading.textContent = "Framework Verified!";
+                heading.className = "text-3xl font-extrabold text-white mb-2 tracking-tight";
+                lbl.textContent = "Accuracy Rank";
+                val.textContent = "Elite";
+                val.className = "text-2xl font-bold text-amber-400";
+                iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-red-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20";
+                runCelebrationFX();
             }
             
-            fetch(endpointURL, {
-                method: 'POST',
-                redirect: 'follow', 
-                dataType: 'json',
-                accepts: 'application/json',
-                body: JSON.stringify({ name: name, time: time })
-            })
-            .then(() => {
-                loadLeaderboard();
-            })
-            .catch(error => console.error('Global save execution failure:', error));
+            document.getElementById('celebrationModal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('celebrationCard').classList.remove('scale-95');
+                document.getElementById('celebrationCard').classList.add('scale-100');
+            }, 50);
+
+            // Transmit data to live server database
+            await saveScoreToCloud(currentPlayerName, timeElapsedSeconds);
         }
 
-        function renderLeaderboardLists(topTenList) {
+        async function saveScoreToCloud(name, time) {
+            const cleanNameKey = name.trim().toLowerCase().replace(/\s+/g, ' ');
+            
+            // Backup save local records
+            const localBest = localStorage.getItem(`best_time_${cleanNameKey}`);
+            if (!localBest || time < Number(localBest)) {
+                localStorage.setItem(`best_time_${cleanNameKey}`, time);
+            }
+            
+            try {
+                await addDoc(collection(db, "leaderboard"), {
+                    name: name,
+                    searchName: cleanNameKey, // Used for clean query match lookups
+                    time: Number(time),
+                    uploadedAt: new Date()
+                });
+                await loadLeaderboard();
+            } catch (err) {
+                console.error("Cloud tracking database submission failed:", err);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const scoresRef = collection(db, "leaderboard");
+                // Fetch fastest times overall
+                const q = query(scoresRef, orderBy("time", "asc"));
+                const querySnapshot = await getDocs(q);
+                
+                const rawScores = [];
+                querySnapshot.forEach(doc => {
+                    rawScores.push(doc.data());
+                });
+
+                // Deduplicate list in real-time so each person only has 1 spot
+                const uniqueScoresMap = new Map();
+                rawScores.forEach(entry => {
+                    const key = entry.searchName || entry.name.toLowerCase().trim();
+                    if (!uniqueScoresMap.has(key)) {
+                        uniqueScoresMap.set(key, entry);
+                    } else if (entry.time < uniqueScoresMap.get(key).time) {
+                        uniqueScoresMap.set(key, entry);
+                    }
+                });
+
+                const sortedUniqueArray = Array.from(uniqueScoresMap.values())
+                    .sort((a, b) => a.time - b.time)
+                    .slice(0, 10);
+
+                renderLeaderboardUI(sortedUniqueArray);
+            } catch (err) {
+                console.error("Leaderboard render tracking failure:", err);
+                document.getElementById('leaderboardList').innerHTML = `<li class="text-rose-400 text-xs text-center py-4">Database Offline</li>`;
+            }
+        }
+
+        function renderLeaderboardUI(topTenList) {
             const gameBoardContainer = document.getElementById('leaderboardList');
             const landingPageContainer = document.getElementById('modalLeaderboardList');
 
-            if(!Array.isArray(topTenList) || topTenList.length === 0) {
+            if (topTenList.length === 0) {
                 const emptyHTML = `<li class="text-slate-500 italic text-center py-4 text-xs">No records tracked.</li>`;
                 gameBoardContainer.innerHTML = emptyHTML;
                 landingPageContainer.innerHTML = emptyHTML;
@@ -564,7 +597,7 @@
 
             const dynamicHTML = topTenList.map((entry, idx) => {
                 let badgeStyle = "text-slate-500";
-                if (idx === 0) badgeStyle = "text-red-500 font-bold";
+                if (idx === 0) badgeStyle = "text-red-400 font-bold";
                 if (idx === 1) badgeStyle = "text-amber-500 font-bold";
                 if (idx === 2) badgeStyle = "text-sky-400 font-bold";
 
@@ -581,54 +614,6 @@
 
             gameBoardContainer.innerHTML = dynamicHTML;
             landingPageContainer.innerHTML = dynamicHTML;
-        }
-
-        function loadLeaderboard() {
-            fetch(endpointURL)
-                .then(res => res.json())
-                .then(scoresList => {
-                    globalCachedScores = Array.isArray(scoresList) ? scoresList : [];
-
-                    // DEDUPLICATION LOOKUP ENGINE
-                    const uniqueScoresMap = new Map();
-                    globalCachedScores.forEach(entry => {
-                        if (entry && entry.name) {
-                            const normalizedName = entry.name.trim().toLowerCase().replace(/\s+/g, ' ');
-                            const currentRecordTime = Number(entry.time) || 9999;
-                            
-                            if (!uniqueScoresMap.has(normalizedName)) {
-                                uniqueScoresMap.set(normalizedName, entry);
-                            } else {
-                                if (currentRecordTime < Number(uniqueScoresMap.get(normalizedName).time)) {
-                                    uniqueScoresMap.set(normalizedName, entry);
-                                }
-                            }
-                        }
-                    });
-
-                    const filteredList = Array.from(uniqueScoresMap.values());
-                    filteredList.sort((a, b) => Number(a.time) - Number(b.time));
-                    const topTen = filteredList.slice(0, 10);
-
-                    renderLeaderboardLists(topTen);
-                })
-                .catch(err => {
-                    console.error("Leaderboard loading error:", err);
-                    
-                    const fallbackList = [];
-                    for(let i=0; i<localStorage.length; i++){
-                        const key = localStorage.key(i);
-                        if(key && key.startsWith("best_time_")){
-                            const cleanName = key.replace("best_time_", "").toUpperCase();
-                            fallbackList.push({ name: cleanName, time: localStorage.getItem(key) });
-                        }
-                    }
-                    
-                    fallbackList.sort((a,b) => Number(a.time) - Number(b.time));
-                    const topTenFallback = fallbackList.slice(0, 10);
-                    
-                    renderLeaderboardLists(topTenFallback);
-                });
         }
     </script>
 </body>
