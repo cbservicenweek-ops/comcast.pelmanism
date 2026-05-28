@@ -170,20 +170,40 @@
 
         <div class="grid grid-cols-1 md:grid-cols-5 gap-6 flex-1">
             
-            <!-- Left reference panel -->
+            <!-- Left Panel (Dynamically changes between Instructions and Target Processes) -->
             <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col">
-                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Target Processes</h3>
+                <h3 id="leftPanelTitle" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">System Instructions</h3>
                 <div id="processList" class="space-y-2.5 flex-1 overflow-y-auto max-h-[74vh] pr-1 custom-scrollbar">
-                    <div class="text-slate-600 text-xs italic p-2">Awaiting workspace activation...</div>
+                    <!-- Instruction Set loaded by default on landing -->
+                    <div class="space-y-4 text-xs text-slate-400 leading-relaxed">
+                        <div class="bg-[#172033]/50 p-3 rounded-xl border border-slate-800">
+                            <span class="font-bold text-red-400 block mb-1">STEP 1: IDENTITY ACCESS</span>
+                            Enter your full name in the security gateway panel to load your operational environment profile.
+                        </div>
+                        <div class="bg-[#172033]/50 p-3 rounded-xl border border-slate-800">
+                            <span class="font-bold text-amber-400 block mb-1">STEP 2: FIELD TARGETS</span>
+                            A randomized workspace grid of 12 system architecture process blocks will generate in the center deck.
+                        </div>
+                        <div class="bg-[#172033]/50 p-3 rounded-xl border border-slate-800">
+                            <span class="font-bold text-sky-400 block mb-1">STEP 3: SINGLE TOGGLE</span>
+                            Click any deck item to view its details. If you want to reconsider before flipping a second card, simply click it again to turn it face-down.
+                        </div>
+                        <div class="bg-[#172033]/50 p-3 rounded-xl border border-slate-800">
+                            <span class="font-bold text-emerald-400 block mb-1">STEP 4: FLOW LINKING</span>
+                            Match each <span class="text-slate-200 font-medium">"Before"</span> structural card directly with its matching lifecycle <span class="text-slate-200 font-medium">"After"</span> card to verify the operational module row.
+                        </div>
+                    </div>
                 </div>
             </aside>
 
             <!-- Main Interactive Area Grid -->
             <main class="md:col-span-3 flex flex-col justify-start">
-                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-1"></div>
+                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-1">
+                    <div class="text-slate-600 text-sm italic text-center py-24 w-full col-span-full">Awaiting database access profile authentication...</div>
+                </div>
             </main>
 
-            <!-- Right Leaderboard Sidebar -->
+            <!-- Right Leaderboard Sidebar (Unlimited rows) -->
             <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col">
                 <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Performance Index</h3>
                 <ol id="leaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[74vh] pr-1 custom-scrollbar text-sm">
@@ -197,9 +217,8 @@
     <!-- MODULAR FIREBASE GAME APP IMPLEMENTATION SYSTEM -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where, limit } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-        // Plugged in exact Step 3 Credentials
         const firebaseConfig = {
             apiKey: "AIzaSyCBEEGFGmh_6d4rE1Yk8yXG0ggHZTRFjnY",
             authDomain: "cb-pelmanism.firebaseapp.com",
@@ -241,7 +260,7 @@
         document.getElementById('startForm').addEventListener('submit', verifyIdentityProfile);
         document.getElementById('initChallengeBtn').addEventListener('click', confirmChallengeMode);
 
-        // Run leaderboard download instantly on startup
+        // Fetch leaderboard ranks on startup
         loadLeaderboard();
 
         async function verifyIdentityProfile(event) {
@@ -250,7 +269,6 @@
             const nameInput = document.getElementById('playerName').value.trim();
             if (!nameInput) return;
 
-            // Prevent double taps while searching cloud backend
             submitBtn.disabled = true;
             submitBtn.textContent = "Querying Database...";
 
@@ -258,9 +276,8 @@
             const cleanNameKey = currentPlayerName.toLowerCase().replace(/\s+/g, ' ');
 
             try {
-                // INSTANT CLOUD VERIFICATION LOGIC
                 const scoresRef = collection(db, "leaderboard");
-                const q = query(scoresRef, where("searchName", "==", cleanNameKey), orderBy("time", "asc"), limit(1));
+                const q = query(scoresRef, where("searchName", "==", cleanNameKey), orderBy("time", "asc"));
                 const querySnapshot = await getDocs(q);
 
                 if (!querySnapshot.empty) {
@@ -275,8 +292,7 @@
                     confirmStart();
                 }
             } catch (err) {
-                console.error("Cloud verification bypassed, falling back to local:", err);
-                // Fail-safe local backup lookup
+                console.error("Cloud verification bypassed, checking local database backup:", err);
                 const fallbackLocal = localStorage.getItem(`best_time_${cleanNameKey}`);
                 if (fallbackLocal) {
                     personalBestRecord = Number(fallbackLocal);
@@ -301,10 +317,12 @@
             document.getElementById('displayPlayerName').textContent = currentPlayerName;
             document.getElementById('welcomeModal').classList.add('hidden');
             
-            // Pick 6 random items
+            // Randomly pull 6 target processes
             const shuffledPool = [...processesConfig].sort(() => 0.5 - Math.random());
             selectedProcesses = shuffledPool.slice(0, 6);
             
+            // Swap out instruction list headers with active data matrices
+            document.getElementById('leftPanelTitle').textContent = "Target Processes";
             renderActiveProcessList();
             initializeGrid();
         }
@@ -361,7 +379,6 @@
                 </div>
             `).join('');
 
-            // Safe event listener attaching
             gridContainer.querySelectorAll('.perspective-1000').forEach(el => {
                 el.addEventListener('click', function() {
                     const idx = parseInt(this.getAttribute('data-index'));
@@ -376,7 +393,14 @@
             if (isProcessing) return;
             
             const cardInner = cardWrapper.firstElementChild;
-            if (cardInner.classList.contains('rotate-y-180') || cardInner.classList.contains('is-matched')) return;
+            if (cardInner.classList.contains('is-matched')) return;
+
+            // TOGGLE-BACK LOGIC FOR A SINGLE FLIPPED CARD
+            if (flippedCards.length === 1 && flippedCards[0].elementIndex === dataIndex) {
+                cardInner.classList.remove('rotate-y-180');
+                flippedCards = [];
+                return;
+            }
 
             if (!isGameStarted) startTimer();
 
@@ -524,14 +548,12 @@
                 document.getElementById('celebrationCard').classList.add('scale-100');
             }, 50);
 
-            // Transmit data to live server database
             await saveScoreToCloud(currentPlayerName, timeElapsedSeconds);
         }
 
         async function saveScoreToCloud(name, time) {
             const cleanNameKey = name.trim().toLowerCase().replace(/\s+/g, ' ');
             
-            // Backup save local records
             const localBest = localStorage.getItem(`best_time_${cleanNameKey}`);
             if (!localBest || time < Number(localBest)) {
                 localStorage.setItem(`best_time_${cleanNameKey}`, time);
@@ -540,21 +562,20 @@
             try {
                 await addDoc(collection(db, "leaderboard"), {
                     name: name,
-                    searchName: cleanNameKey, // Used for clean query match lookups
+                    searchName: cleanNameKey, 
                     time: Number(time),
                     uploadedAt: new Date()
                 });
                 await loadLeaderboard();
             } catch (err) {
-                console.error("Cloud tracking database submission failed:", err);
+                console.error("Cloud database synchronization error:", err);
             }
         }
 
         async function loadLeaderboard() {
             try {
                 const scoresRef = collection(db, "leaderboard");
-                // Fetch fastest times overall
-                const q = query(scoresRef, orderBy("time", "asc"));
+                const q = query(scoresRef, orderBy("time", "asc")); // Removed document fetch limit
                 const querySnapshot = await getDocs(q);
                 
                 const rawScores = [];
@@ -562,7 +583,6 @@
                     rawScores.push(doc.data());
                 });
 
-                // Deduplicate list in real-time so each person only has 1 spot
                 const uniqueScoresMap = new Map();
                 rawScores.forEach(entry => {
                     const key = entry.searchName || entry.name.toLowerCase().trim();
@@ -573,38 +593,41 @@
                     }
                 });
 
+                // Displaying all elements without slicing the list
                 const sortedUniqueArray = Array.from(uniqueScoresMap.values())
-                    .sort((a, b) => a.time - b.time)
-                    .slice(0, 10);
+                    .sort((a, b) => a.time - b.time);
 
                 renderLeaderboardUI(sortedUniqueArray);
             } catch (err) {
-                console.error("Leaderboard render tracking failure:", err);
+                console.error("Leaderboard component tracking failed:", err);
                 document.getElementById('leaderboardList').innerHTML = `<li class="text-rose-400 text-xs text-center py-4">Database Offline</li>`;
             }
         }
 
-        function renderLeaderboardUI(topTenList) {
+        function renderLeaderboardUI(completePlayerList) {
             const gameBoardContainer = document.getElementById('leaderboardList');
             const landingPageContainer = document.getElementById('modalLeaderboardList');
 
-            if (topTenList.length === 0) {
+            if (completePlayerList.length === 0) {
                 const emptyHTML = `<li class="text-slate-500 italic text-center py-4 text-xs">No records tracked.</li>`;
                 gameBoardContainer.innerHTML = emptyHTML;
                 landingPageContainer.innerHTML = emptyHTML;
                 return;
             }
 
-            const dynamicHTML = topTenList.map((entry, idx) => {
+            const dynamicHTML = completePlayerList.map((entry, idx) => {
                 let badgeStyle = "text-slate-500";
                 if (idx === 0) badgeStyle = "text-red-400 font-bold";
                 if (idx === 1) badgeStyle = "text-amber-500 font-bold";
                 if (idx === 2) badgeStyle = "text-sky-400 font-bold";
 
+                // Added format padding for double or triple digits ranks
+                const placementIndex = String(idx + 1).padStart(2, '0');
+
                 return `
                     <li class="flex items-center justify-between bg-[#172033]/40 border border-slate-800/60 rounded-lg p-2.5 hover:bg-[#172033]/80 transition-colors">
                         <div class="flex items-center gap-2.5 truncate max-w-[75%]">
-                            <span class="w-5 text-center text-xs font-mono ${badgeStyle}">0${idx + 1}</span>
+                            <span class="w-6 text-center text-xs font-mono ${badgeStyle}">${placementIndex}</span>
                             <span class="font-medium text-slate-300 truncate" title="${entry.name}">${entry.name}</span>
                         </div>
                         <span class="font-mono text-xs font-bold text-red-400 shrink-0">${entry.time}s</span>
