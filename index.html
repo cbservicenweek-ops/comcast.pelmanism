@@ -572,3 +572,34 @@
             const landingPageContainer = document.getElementById('modalLeaderboardList');
 
             if (completePlayerList.length === 0) {
+                const emptyHTML = `<li class="text-slate-500 italic text-center py-4 text-xs">No records tracked.</li>`;
+                gameBoardContainer.innerHTML = emptyHTML;
+                landingPageContainer.innerHTML = emptyHTML;
+                return;
+            }
+
+            const dynamicHTML = completePlayerList.map((entry, idx) => {
+                let badgeStyle = "text-slate-500";
+                if (idx === 0) badgeStyle = "text-red-400 font-bold";
+                if (idx === 1) badgeStyle = "text-amber-500 font-bold";
+                if (idx === 2) badgeStyle = "text-sky-400 font-bold";
+
+                const placementIndex = String(idx + 1).padStart(2, '0');
+
+                return `
+                    <li class="flex items-center justify-between bg-[#172033]/40 border border-slate-800/60 rounded-lg p-2.5 hover:bg-[#172033]/80 transition-colors">
+                        <div class="flex items-center gap-2.5 truncate max-w-[75%]">
+                            <span class="w-6 text-center text-xs font-mono ${badgeStyle}">${placementIndex}</span>
+                            <span class="font-medium text-slate-300 truncate" title="${entry.name}">${entry.name}</span>
+                        </div>
+                        <span class="font-mono text-xs font-bold text-red-400 shrink-0">${entry.time}s</span>
+                    </li>
+                `;
+            }).join('');
+
+            gameBoardContainer.innerHTML = dynamicHTML;
+            landingPageContainer.innerHTML = dynamicHTML;
+        }
+    </script>
+</body>
+</html>
