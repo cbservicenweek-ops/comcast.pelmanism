@@ -200,7 +200,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBEEGFGmh_6d4rE1Yk8yXG0ggHZTRFjnY",
@@ -214,7 +214,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- CORE PROCESS CONFIG ARRAY (Preserving all 10 processes) ---
+        // --- CORE PROCESS CONFIG ARRAY ---
         const processesConfig = [
             { id: 1, name: "Park a ticket", before: "Change Incident State to Awaiting Response/Action – Provider or Awaiting Response/Action – Customer", after: "Change Case Status to Awaiting Info" },
             { id: 2, name: "Update the Next Action Due time/date", before: "Select the appropriate action from the Next Action drop down menu.  Choose the Next Action Due time and date from the Next Action Due field.  NOTE: Ilex uses Eastern Standard Time to account for the customer’s local time zone when choosing the Next Action Due time", after: "Select the appropriate action from the Next Action Message drop down menu.  Choose the Next Action time and date from the Next Action field.  NOTE: ServiceNow uses your local time zone if you set it up correctly in your profile.  Enter the time in 24 hour format (no AM/PM)" },
@@ -247,7 +247,6 @@
 
         loadLeaderboard();
 
-        // FIXED FUNCTION: Pulls verification parameters locally from the cached leaderboard scores list
         async function verifyIdentityProfile(event) {
             event.preventDefault();
             const nameInput = document.getElementById('playerName').value.trim();
@@ -256,14 +255,13 @@
             currentPlayerName = nameInput;
             const cleanNameKey = currentPlayerName.toLowerCase().replace(/\s+/g, ' ');
 
-            // Scan local array metrics directly instead of making an overlapping server request
+            // Scan local array metrics instantly
             const matchingRuns = globalCachedScores.filter(entry => {
                 const entryKey = entry.searchName || (entry.name ? entry.name.toLowerCase().trim().replace(/\s+/g, ' ') : "");
                 return entryKey === cleanNameKey;
             });
 
             if (matchingRuns.length > 0) {
-                // Find the absolute lowest time record safely
                 const sortedRuns = [...matchingRuns].sort((a, b) => Number(a.time) - Number(b.time));
                 personalBestRecord = Number(sortedRuns[0].time);
                 
@@ -371,3 +369,206 @@
 
             cardInner.classList.add('rotate-y-180');
             flippedCards.push({ wrapper: cardWrapper, inner: cardInner, data: cardsData[dataIndex], elementIndex: dataIndex });
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function startTimer() {
+            isGameStarted = true;
+            timeElapsedSeconds = 0;
+            timerInterval = setInterval(() => {
+                timeElapsedSeconds++;
+                const mins = String(Math.floor(timeElapsedSeconds / 60)).padStart(2, '0');
+                const secs = String(timeElapsedSeconds % 60).padStart(2, '0');
+                document.getElementById('timer').textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function updateKPIs() {
+            document.getElementById('pairsCount').textContent = `${matchedPairsCount} / ${selectedProcesses.length}`;
+        }
+
+        function checkMatch() {
+            isProcessing = true;
+            const [cardA, cardB] = flippedCards;
+
+            const isSameProcess = (cardA.data.id === cardB.data.id);
+            const isComplementaryTypes = (cardA.data.type !== cardB.data.type);
+
+            if (isSameProcess && isComplementaryTypes) {
+                matchedPairsCount++;
+                updateKPIs();
+
+                const processRow = document.getElementById(`process-row-${cardA.data.id}`);
+                if (processRow) {
+                    processRow.classList.remove('bg-[#172033]/40', 'border-slate-800');
+                    processRow.classList.add('bg-red-500/10', 'border-red-500/40', 'shadow-sm', 'shadow-red-500/5');
+                    processRow.querySelector('.process-title').classList.remove('text-slate-200');
+                    processRow.querySelector('.process-title').classList.add('text-red-400');
+                    processRow.querySelector('.status-badge').classList.remove('opacity-0');
+                }
+
+                flippedCards.forEach(c => {
+                    c.inner.classList.add('is-matched');
+                    c.inner.classList.remove('border-slate-800');
+                    c.inner.classList.add('border-red-500/50', 'shadow-md', 'shadow-red-500/5');
+                    
+                    const badge = document.getElementById(`card-badge-${c.elementIndex}`);
+                    if (badge) {
+                        badge.textContent = `${c.data.type} - Process ${c.data.id}`;
+                        badge.classList.remove('text-slate-400', 'bg-slate-900');
+                        badge.classList.add('text-red-400', 'bg-red-500/10', 'border-red-500/20');
+                    }
+                });
+
+                flippedCards = [];
+                isProcessing = false;
+
+                if (matchedPairsCount === selectedProcesses.length) {
+                    endGame();
+                }
+            } else {
+                setTimeout(() => {
+                    flippedCards.forEach(c => c.wrapper.classList.add('animate-shake'));
+                }, 200);
+
+                setTimeout(() => {
+                    flippedCards.forEach(c => {
+                        c.wrapper.classList.remove('animate-shake');
+                        c.inner.classList.remove('rotate-y-180');
+                    });
+                    flippedCards = [];
+                    isProcessing = false;
+                }, 1000);
+            }
+        }
+
+        function runCelebrationFX() {
+            const container = document.getElementById('confettiContainer');
+            container.innerHTML = '';
+            const colors = ['#FF4B2B', '#FF2A54', '#38BDF8', '#F59E0B', '#10B981'];
+            for (let i = 0; i < 75; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.transform = `scale(${Math.random() * 0.6 + 0.4})`;
+                const delay = Math.random() * 3;
+                const duration = Math.random() * 2 + 2;
+                confetti.style.animationDelay = delay + 's';
+                confetti.style.animationDuration = duration + 's';
+                container.appendChild(confetti);
+            }
+        }
+
+        async function endGame() {
+            clearInterval(timerInterval);
+            isGameStarted = false;
+            
+            const heading = document.getElementById('victoryHeading');
+            const msg = document.getElementById('victoryMessage');
+            const lbl = document.getElementById('metricLabel');
+            const val = document.getElementById('metricValue');
+            const iconContainer = document.getElementById('victoryIcon');
+
+            document.getElementById('victoryPlayerName').textContent = currentPlayerName;
+            document.getElementById('victoryTime').textContent = `${timeElapsedSeconds}s`;
+
+            if (personalBestRecord !== null) {
+                if (timeElapsedSeconds < personalBestRecord) {
+                    heading.textContent = "Record Shattered!";
+                    heading.className = "text-3xl font-extrabold text-amber-400 mb-2 tracking-tight";
+                    msg.innerHTML = `Incredible optimization, <span class="text-amber-400 font-bold">${currentPlayerName}</span>! You successfully trimmed your framework diagnostic time down.`;
+                    lbl.textContent = "Previous Best";
+                    val.textContent = `${personalBestRecord}s`;
+                    val.className = "text-2xl font-bold text-slate-400";
+                    iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20";
+                    runCelebrationFX();
+                } else {
+                    heading.textContent = "Nice Try!";
+                    heading.className = "text-3xl font-extrabold text-slate-300 mb-2 tracking-tight";
+                    msg.innerHTML = `Systems checked, <span class="text-white font-bold">${currentPlayerName}</span>. You matched all modules, but couldn't quite beat your historical benchmark record.`;
+                    lbl.textContent = "Target PR";
+                    val.textContent = `${personalBestRecord}s`;
+                    val.className = "text-2xl font-bold text-red-400";
+                    iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-slate-700 to-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600";
+                }
+            } else {
+                heading.textContent = "Framework Verified!";
+                heading.className = "text-3xl font-extrabold text-white mb-2 tracking-tight";
+                lbl.textContent = "Accuracy Rank";
+                val.textContent = "Elite";
+                val.className = "text-2xl font-bold text-amber-400";
+                iconContainer.className = "w-20 h-20 bg-gradient-to-tr from-red-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20";
+                runCelebrationFX();
+            }
+            
+            document.getElementById('celebrationModal').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('celebrationCard').classList.remove('scale-95');
+                document.getElementById('celebrationCard').classList.add('scale-100');
+            }, 50);
+
+            await saveScoreToCloud(currentPlayerName, timeElapsedSeconds);
+        }
+
+        async function saveScoreToCloud(name, time) {
+            const cleanNameKey = name.trim().toLowerCase().replace(/\s+/g, ' ');
+            
+            try {
+                await addDoc(collection(db, "leaderboard"), {
+                    name: name,
+                    searchName: cleanNameKey, 
+                    time: Number(time),
+                    uploadedAt: new Date()
+                });
+                await loadLeaderboard();
+            } catch (err) {
+                console.error("Cloud database synchronization error:", err);
+            }
+        }
+
+        // STABLE FETCH ENGINE: Downloads database entries natively and structures logic flawlessly via JS
+        async function loadLeaderboard() {
+            try {
+                const scoresRef = collection(db, "leaderboard");
+                const querySnapshot = await getDocs(scoresRef);
+                
+                globalCachedScores = []; 
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data && data.time) {
+                        globalCachedScores.push(data);
+                    }
+                });
+
+                const uniqueScoresMap = new Map();
+                globalCachedScores.forEach(entry => {
+                    const key = entry.searchName || (entry.name ? entry.name.toLowerCase().trim().replace(/\s+/g, ' ') : "");
+                    if (key) {
+                        if (!uniqueScoresMap.has(key)) {
+                            uniqueScoresMap.set(key, entry);
+                        } else if (Number(entry.time) < Number(uniqueScoresMap.get(key).time)) {
+                            uniqueScoresMap.set(key, entry);
+                        }
+                    }
+                });
+
+                // Client-side execution sorting loop guarantees stability across instances
+                const sortedUniqueArray = Array.from(uniqueScoresMap.values())
+                    .sort((a, b) => Number(a.time) - Number(b.time));
+
+                renderLeaderboardUI(sortedUniqueArray);
+            } catch (err) {
+                console.error("Leaderboard component tracking failed:", err);
+                document.getElementById('modalLeaderboardList').innerHTML = `<li class="text-rose-400 text-xs text-center py-12">Database Sync Error</li>`;
+            }
+        }
+
+        function renderLeaderboardUI(completePlayerList) {
+            const gameBoardContainer = document.getElementById('leaderboardList');
+            const landingPageContainer = document.getElementById('modalLeaderboardList');
+
+            if (completePlayerList.length === 0) {
