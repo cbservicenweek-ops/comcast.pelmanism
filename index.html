@@ -12,7 +12,7 @@
         .backface-hidden { backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
         
-        /* Custom scrollbar for text-heavy cards to maintain clean aesthetic */
+        /* Custom scrollbar for text-heavy elements */
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 3px; }
@@ -41,7 +41,6 @@
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased overflow-x-hidden">
 
-    <!-- Victory Celebration Overlay -->
     <div id="celebrationModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl z-50 hidden flex items-center justify-center p-4 overflow-hidden">
         <div id="confettiContainer" class="absolute inset-0 pointer-events-none"></div>
         
@@ -73,7 +72,6 @@
         </div>
     </div>
 
-    <!-- Challenge Overlay (Returning Operators) -->
     <div id="challengeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#111827] border border-amber-500/30 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
             <div class="w-14 h-14 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -101,11 +99,10 @@
         </div>
     </div>
 
-    <!-- Entrance Landing Portal Overlay -->
     <div id="welcomeModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-[#111827] border border-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start my-auto">
+        <div class="bg-[#111827] border border-slate-800 p-6 md:p-8 rounded-2xl shadow-2xl max-w-6xl w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-start my-auto max-h-[95vh] overflow-y-auto custom-scrollbar">
             
-            <div class="space-y-5">
+            <div class="md:col-span-7 space-y-5">
                 <div class="flex items-center gap-1.5 text-white font-black tracking-tighter text-3xl font-mono">
                     <span class="text-red-500 text-4xl font-sans font-normal leading-none -mt-1">c</span>omcast
                 </div>
@@ -114,13 +111,13 @@
                     <p class="text-slate-400 mt-1 text-xs leading-relaxed">Calibrate target system architectures by linking respective structural lifecycle benchmarks.</p>
                 </div>
                 
-                <form id="startForm" class="space-y-4 pt-2">
+                <form id="startForm" class="space-y-4 pt-1">
                     <div class="text-left">
                         <label for="playerName" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Operator Full Name</label>
                         <input type="text" id="playerName" required autocomplete="name" placeholder="e.g. John Doe" 
                                class="w-full bg-[#172033] border border-slate-700 rounded-lg px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all text-sm">
                     </div>
-                    <button type="submit" id="submitBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md shadow-red-500/10 transition-all duration-200 cursor-pointer">
+                    <button type="submit" id="submitBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md shadow-red-500/10 transition-all duration-200 cursor-pointer text-sm">
                         Initialize Diagnostic Deck
                     </button>
                 </form>
@@ -129,9 +126,20 @@
                     <span class="font-bold text-slate-200 block mb-1">📋 Diagnostic Rules:</span>
                     Six business processes will be drawn at random from the configuration library. Link all matched nodes efficiently to submit your performance run.
                 </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <div class="bg-[#172033]/30 p-3 rounded-xl border border-slate-800/60 text-[11px] text-slate-400">
+                        <span class="font-bold text-amber-400 block mb-0.5">1. SINGLE TOGGLE PEAK</span>
+                        Click any card to inspect its process value. Click the <span class="text-slate-200">exact same card again</span> to safely flip it back face-down.
+                    </div>
+                    <div class="bg-[#172033]/30 p-3 rounded-xl border border-slate-800/60 text-[11px] text-slate-400">
+                        <span class="font-bold text-sky-400 block mb-0.5">2. MATCH EVALUATION</span>
+                        Once a <span class="text-slate-200">second card</span> is selected, the system locks and evaluates if the Before & After segments align.
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-[#0b0f19]/60 border border-slate-800 rounded-xl p-4 w-full h-full min-h-[340px] flex flex-col">
+            <div class="md:col-span-5 bg-[#0b0f19]/60 border border-slate-800 rounded-xl p-4 w-full h-full min-h-[380px] flex flex-col">
                 <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-800">
                     <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
                         <span class="inline-block h-2 w-2 rounded-full bg-red-500"></span>
@@ -139,7 +147,7 @@
                     </h3>
                     <span class="text-[10px] font-mono text-slate-500">Global Index</span>
                 </div>
-                <ol id="modalLeaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[340px] pr-1 custom-scrollbar text-sm">
+                <ol id="modalLeaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[380px] pr-1 custom-scrollbar text-sm">
                     <li class="text-slate-500 italic text-center py-12 text-xs">Pinging cloud data systems...</li>
                 </ol>
             </div>
@@ -147,7 +155,6 @@
         </div>
     </div>
 
-    <!-- Main Game Dashboard System -->
     <div class="max-w-[1700px] mx-auto p-4 lg:p-6 min-h-screen flex flex-col">
         
         <header class="bg-[#111827]/80 border border-slate-800 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 backdrop-blur-sm">
@@ -170,40 +177,17 @@
 
         <div class="grid grid-cols-1 md:grid-cols-5 gap-6 flex-1">
             
-            <!-- Left Panel (Dynamically changes between Instructions and Target Processes) -->
             <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col">
-                <h3 id="leftPanelTitle" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">System Instructions</h3>
+                <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Target Processes</h3>
                 <div id="processList" class="space-y-2.5 flex-1 overflow-y-auto max-h-[74vh] pr-1 custom-scrollbar">
-                    <!-- Instruction Set loaded by default on landing -->
-                    <div class="space-y-4 text-xs text-slate-400 leading-relaxed">
-                        <div class="bg-[#172033]/50 p-3 rounded-xl border border-slate-800">
-                            <span class="font-bold text-red-400 block mb-1">STEP 1: IDENTITY ACCESS</span>
-                            Enter your full name in the security gateway panel to load your operational environment profile.
-                        </div>
-                        <div class="bg-[#172033]/50 p-3 rounded-xl border border-slate-800">
-                            <span class="font-bold text-amber-400 block mb-1">STEP 2: FIELD TARGETS</span>
-                            A randomized workspace grid of 12 system architecture process blocks will generate in the center deck.
-                        </div>
-                        <div class="bg-[#172033]/50 p-3 rounded-xl border border-slate-800">
-                            <span class="font-bold text-sky-400 block mb-1">STEP 3: SINGLE TOGGLE</span>
-                            Click any deck item to view its details. If you want to reconsider before flipping a second card, simply click it again to turn it face-down.
-                        </div>
-                        <div class="bg-[#172033]/50 p-3 rounded-xl border border-slate-800">
-                            <span class="font-bold text-emerald-400 block mb-1">STEP 4: FLOW LINKING</span>
-                            Match each <span class="text-slate-200 font-medium">"Before"</span> structural card directly with its matching lifecycle <span class="text-slate-200 font-medium">"After"</span> card to verify the operational module row.
-                        </div>
-                    </div>
+                    <div class="text-slate-600 text-xs italic p-2">Awaiting workspace activation...</div>
                 </div>
             </aside>
 
-            <!-- Main Interactive Area Grid -->
             <main class="md:col-span-3 flex flex-col justify-start">
-                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-1">
-                    <div class="text-slate-600 text-sm italic text-center py-24 w-full col-span-full">Awaiting database access profile authentication...</div>
-                </div>
+                <div id="gameGrid" class="grid gap-4 w-full mx-auto p-1"></div>
             </main>
 
-            <!-- Right Leaderboard Sidebar (Unlimited rows) -->
             <aside class="md:col-span-1 bg-[#111827]/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col">
                 <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 pb-2 border-b border-slate-800">Performance Index</h3>
                 <ol id="leaderboardList" class="space-y-2 flex-1 overflow-y-auto max-h-[74vh] pr-1 custom-scrollbar text-sm">
@@ -214,7 +198,6 @@
         </div>
     </div>
 
-    <!-- MODULAR FIREBASE GAME APP IMPLEMENTATION SYSTEM -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
@@ -231,7 +214,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- CORE PROCESS CONFIG ARRAY (9 Matrix Rows) ---
+        // --- CORE PROCESS CONFIG ARRAY ---
         const processesConfig = [
             { id: 1, name: "Park a ticket", before: "Change Incident State to Awaiting Response/Action – Provider or Awaiting Response/Action – Customer", after: "Change Case Status to Awaiting Info" },
             { id: 2, name: "Update the Next Action Due time/date", before: "Select the appropriate action from the Next Action drop down menu.  Choose the Next Action Due time and date from the Next Action Due field.  NOTE: Ilex uses Eastern Standard Time to account for the customer’s local time zone when choosing the Next Action Due time", after: "Select the appropriate action from the Next Action Message drop down menu.  Choose the Next Action time and date from the Next Action field.  NOTE: ServiceNow uses your local time zone if you set it up correctly in your profile.  Enter the time in 24 hour format (no AM/PM)" },
@@ -321,8 +304,6 @@
             const shuffledPool = [...processesConfig].sort(() => 0.5 - Math.random());
             selectedProcesses = shuffledPool.slice(0, 6);
             
-            // Swap out instruction list headers with active data matrices
-            document.getElementById('leftPanelTitle').textContent = "Target Processes";
             renderActiveProcessList();
             initializeGrid();
         }
@@ -575,8 +556,7 @@
         async function loadLeaderboard() {
             try {
                 const scoresRef = collection(db, "leaderboard");
-                const q = query(scoresRef, orderBy("time", "asc")); // Removed document fetch limit
-                const querySnapshot = await getDocs(q);
+                const querySnapshot = await getDocs(query(scoresRef, orderBy("time", "asc")));
                 
                 const rawScores = [];
                 querySnapshot.forEach(doc => {
@@ -593,7 +573,6 @@
                     }
                 });
 
-                // Displaying all elements without slicing the list
                 const sortedUniqueArray = Array.from(uniqueScoresMap.values())
                     .sort((a, b) => a.time - b.time);
 
@@ -621,7 +600,6 @@
                 if (idx === 1) badgeStyle = "text-amber-500 font-bold";
                 if (idx === 2) badgeStyle = "text-sky-400 font-bold";
 
-                // Added format padding for double or triple digits ranks
                 const placementIndex = String(idx + 1).padStart(2, '0');
 
                 return `
