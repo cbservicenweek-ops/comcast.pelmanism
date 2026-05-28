@@ -200,7 +200,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBEEGFGmh_6d4rE1Yk8yXG0ggHZTRFjnY",
@@ -239,6 +239,7 @@
         let timeElapsedSeconds = 0;
         let isGameStarted = false;
         let isProcessing = false;
+        let globalCachedScores = []; // Global cache variable to completely bypass custom server indexes
 
         // Form Event Bindings
         document.getElementById('startForm').addEventListener('submit', verifyIdentityProfile);
@@ -259,36 +260,39 @@
             currentPlayerName = nameInput;
             const cleanNameKey = currentPlayerName.toLowerCase().replace(/\s+/g, ' ');
 
-            try {
-                const scoresRef = collection(db, "leaderboard");
-                const q = query(scoresRef, where("searchName", "==", cleanNameKey), orderBy("time", "asc"));
-                const querySnapshot = await getDocs(q);
+            // FIXED ENGINE: Uses the global cache array populated on startup. 
+            // Bypasses custom Firebase indices, preventing system freezes entirely.
+            const matchingRuns = globalCachedScores.filter(entry => {
+                const key = entry.searchName || (entry.name ? entry.name.toLowerCase().trim().replace(/\s+/g, ' ') : "");
+                return key === cleanNameKey;
+            });
 
-                if (!querySnapshot.empty) {
-                    const fastestRun = querySnapshot.docs[0].data();
-                    personalBestRecord = Number(fastestRun.time);
-                    
-                    document.getElementById('challengePlayerName').textContent = currentPlayerName;
-                    document.getElementById('timeToBeat').textContent = personalBestRecord;
-                    document.getElementById('challengeModal').classList.remove('hidden');
-                } else {
-                    personalBestRecord = null;
-                    confirmStart();
-                }
-            } catch (err) {
-                console.error("Cloud verification bypassed, checking local database backup:", err);
+            if (matchingRuns.length > 0) {
+                // Sort matching runs locally to find the personal best time record
+                matchingRuns.sort((a, b) => Number(a.time) - Number(b.time));
+                personalBestRecord = Number(matchingRuns[0].time);
+                
+                document.getElementById('challengePlayerName').textContent = currentPlayerName;
+                document.getElementById('timeToBeat').textContent = personalBestRecord;
+                document.getElementById('challengeModal').classList.remove('hidden');
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Initialize Diagnostic Deck";
+            } else {
+                // Double check local storage backup parameters
                 const fallbackLocal = localStorage.getItem(`best_time_${cleanNameKey}`);
                 if (fallbackLocal) {
                     personalBestRecord = Number(fallbackLocal);
                     document.getElementById('challengePlayerName').textContent = currentPlayerName;
                     document.getElementById('timeToBeat').textContent = personalBestRecord;
                     document.getElementById('challengeModal').classList.remove('hidden');
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Initialize Diagnostic Deck";
                 } else {
+                    personalBestRecord = null;
                     confirmStart();
                 }
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Initialize Diagnostic Deck";
             }
         }
 
@@ -559,18 +563,20 @@
                 const scoresRef = collection(db, "leaderboard");
                 const querySnapshot = await getDocs(query(scoresRef, orderBy("time", "asc")));
                 
-                const rawScores = [];
+                globalCachedScores = []; // Re-initialize cache loop clear
                 querySnapshot.forEach(doc => {
-                    rawScores.push(doc.data());
+                    globalCachedScores.push(doc.data());
                 });
 
                 const uniqueScoresMap = new Map();
-                rawScores.forEach(entry => {
-                    const key = entry.searchName || entry.name.toLowerCase().trim();
-                    if (!uniqueScoresMap.has(key)) {
-                        uniqueScoresMap.set(key, entry);
-                    } else if (entry.time < uniqueScoresMap.get(key).time) {
-                        uniqueScoresMap.set(key, entry);
+                globalCachedScores.forEach(entry => {
+                    const key = entry.searchName || (entry.name ? entry.name.toLowerCase().trim() : "");
+                    if (key) {
+                        if (!uniqueScoresMap.has(key)) {
+                            uniqueScoresMap.set(key, entry);
+                        } else if (entry.time < uniqueScoresMap.get(key).time) {
+                            uniqueScoresMap.set(key, entry);
+                        }
                     }
                 });
 
